@@ -38,7 +38,7 @@ jobs:
 
       - name: Sync files via rsync
         run: |
-          rsync -az --delete             --exclude='.git'             --exclude='node_modules'             --exclude='.env'             --exclude='.env.local'             --exclude='.next'             -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no"             ./ root@${{ secrets.SSH_HOST }}:/var/www/nextblog/
+          rsync -az --delete             --exclude='.git'             --exclude='node_modules'             --exclude='.env'             --exclude='.env.local'             --exclude='.next'             --exclude='scripts/service-account.json'             --exclude='scripts/indexing-state.json'             -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no"             ./ root@${{ secrets.SSH_HOST }}:/var/www/nextblog/
 
       - name: Sync .next build output
         run: |
@@ -64,3 +64,14 @@ jobs:
             exit 1
           fi
           echo "Deployment successful!"
+
+      - name: Submit new pages to Google Index
+        run: |
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@${{ secrets.SSH_HOST }} << 'ENDSSH'
+            cd /var/www/nextblog
+            if [ -f scripts/service-account.json ]; then
+              node scripts/smart-indexing.js --new
+            else
+              echo "Skipping indexing: scripts/service-account.json not found"
+            fi
+          ENDSSH
