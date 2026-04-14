@@ -210,11 +210,19 @@ async function runBatch(urlList, token, state, dryRun) {
     return;
   }
 
-  let submitted = 0, skipped = 0, errors = 0;
+  let submitted = 0, skipped = 0, errors = 0, consecutive403 = 0;
 
   for (const item of urlList) {
     if (submitted >= quota) {
       console.log('\nQuota reached. ' + (urlList.length - submitted - skipped) + ' URLs remain for tomorrow.');
+      break;
+    }
+
+    // Stop immediately if Search Console ownership is not set up
+    if (consecutive403 >= 3) {
+      console.log('\nStopping: 3 consecutive 403 errors.');
+      console.log('Add indexing-bot@sergovantseva-seo.iam.gserviceaccount.com as OWNER in Search Console first.');
+      saveState(state);
       break;
     }
 
@@ -241,6 +249,7 @@ async function runBatch(urlList, token, state, dryRun) {
         console.log('OK');
         recordSubmission(state, url, 'ok');
         submitted++;
+        consecutive403 = 0;
       } else if (res.status === 429) {
         console.log('RATE LIMITED — stopping');
         saveState(state);
@@ -248,18 +257,20 @@ async function runBatch(urlList, token, state, dryRun) {
       } else if (res.status === 403) {
         const msg = (res.body.error && res.body.error.message) || '403';
         console.log('FORBIDDEN: ' + msg);
-        console.log('\n  Make sure indexing-bot@... is added as OWNER in Search Console.');
         errors++;
-        recordSubmission(state, url, 'error:403');
+        consecutive403++;
+        // Don't record 403s in state — allow retry once ownership is fixed
       } else {
         const msg = (res.body.error && res.body.error.message) || JSON.stringify(res.body);
         console.log('ERROR ' + res.status + ': ' + msg);
         errors++;
+        consecutive403 = 0;
         recordSubmission(state, url, 'error:' + res.status);
       }
     } catch (err) {
       console.log('FAILED: ' + err.message);
       errors++;
+      consecutive403 = 0;
     }
 
     saveState(state);
