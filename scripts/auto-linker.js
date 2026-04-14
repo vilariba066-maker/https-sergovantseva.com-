@@ -1,23 +1,12 @@
 #!/usr/bin/env node
 /**
  * auto-linker.js — Internal linking automation
- * Scans post content, finds keyword matches to other post titles,
- * inserts <a href> links, and saves back to DB.
  *
  * Usage:
  *   node scripts/auto-linker.js --dry-run        # Preview only, no DB writes
  *   node scripts/auto-linker.js --run            # Apply links to all posts
  *   node scripts/auto-linker.js --slug my-post   # Single post only
  *   node scripts/auto-linker.js --stats          # Show current link stats
- *
- * Strategy:
- *   - Max 5 outbound links added per post
- *   - Never links a post to itself
- *   - Never duplicates an existing link to the same target
- *   - Skips links already present in content
- *   - Prefers longer title matches (more specific)
- *   - Only links first occurrence of each phrase
- *   - Wraps matches in <a href="/blog/slug" class="internal-link">
  */
 
 'use strict';
@@ -25,140 +14,139 @@
 const { PrismaClient } = require('@prisma/client');
 
 const MAX_LINKS_PER_POST = 5;
-const MIN_TITLE_WORDS    = 3;   // ignore very short titles as keywords
-const BASE               = 'https://sergovantseva.com';
+const MIN_TITLE_WORDS    = 3;
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+// ─── Keyword extraction ───────────────────────────────────────────────────────
 
-function escapeRegex(str) {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+// Only use the full cleaned title — most specific, no sliding windows
+function titleKeyword(title) {
+  const clean = title.replace(/[^\w\s'-]/g, '').trim();
+  const words = clean.split(/\s+/).filter(Boolean);
+  if (words.length < MIN_TITLE_WORDS) return null;
+  return clean;
 }
 
-function stripHtml(html) {
-  return (html || '').replace(/<[^>]+>/g, ' ');
-}
+// ─── Fast link insertion ──────────────────────────────────────────────────────
+// Split HTML by tags, search/replace only in text nodes.
+// No regex on the full HTML string — avoids catastrophic backtracking.
 
-// Extract all existing href targets from HTML
-function existingLinks(html) {
-  const hrefs = new Set();
-  const re = /href=["']([^"']+)["']/gi;
-  let m;
-  while ((m = re.exec(html)) !== null) hrefs.add(m[1]);
-  return hrefs;
-}
-
-// Build keyword candidates from a post title
-// Returns array sorted longest first (most specific match wins)
-function titleKeywords(title) {
-  // Use full title and also meaningful sub-phrases (4+ word windows)
-  const words = title.replace(/[^\w\s'-]/g, '').trim().split(/\s+/).filter(Boolean);
-  if (words.length < MIN_TITLE_WORDS) return [];
-
-  const candidates = [title.replace(/[^\w\s'-]/g, '').trim()]; // full title (cleaned)
-
-  // Sliding windows of 4-6 words for long titles
-  if (words.length > 5) {
-    for (let size = Math.min(words.length, 6); size >= 4; size--) {
-      for (let i = 0; i <= words.length - size; i++) {
-        candidates.push(words.slice(i, i + size).join(' '));
-      }
-    }
-  }
-
-  // Deduplicate, sort longest first
-  return [...new Set(candidates)].sort((a, b) => b.length - a.length);
-}
-
-// Insert link for first occurrence of phrase in HTML, outside existing tags
 function insertLink(html, phrase, href) {
-  // Don't link inside existing tags or attributes
-  const re = new RegExp(
-    '(?<!<[^>]*)\\b(' + escapeRegex(phrase) + ')\\b(?![^<]*>)(?![^<]*</a>)',
-    'i'
-  );
+  const lowerPhrase = phrase.toLowerCase();
 
-  // Check if phrase is already inside an <a> tag
-  const insideAnchor = new RegExp(
-    '<a[^>]*>[^<]*' + escapeRegex(phrase) + '[^<]*</a>',
-    'i'
-  );
-  if (insideAnchor.test(html)) return null;
+  // Fast pre-check before any work
+  if (!html.toLowerCase().includes(lowerPhrase)) return null;
 
-  if (!re.test(html)) return null;
+  // Split into alternating [text, tag, text, tag, ...]
+  const parts  = html.split(/(<[^>]+>)/);
+  let   linked = false;
+  let   insideAnchor = false;
 
-  return html.replace(re, '<a href="' + href + '" class="internal-link">$1</a>');
-}
-
-// ─── Core linker ──────────────────────────────────────────────────────────────
-
-function buildLinkMap(posts) {
-  // slug -> array of keyword candidates, longest first
-  const map = [];
-  for (const post of posts) {
-    const keywords = titleKeywords(post.title);
-    if (keywords.length > 0) {
-      map.push({ slug: post.id, urlSlug: post.slug, title: post.title, keywords });
+  const result = parts.map(part => {
+    // Track if we're currently inside an <a> tag
+    if (part.startsWith('<')) {
+      if (/^<a[\s>]/i.test(part))  insideAnchor = true;
+      if (/^<\/a>/i.test(part))    insideAnchor = false;
+      return part;
     }
-  }
-  // Sort by longest title first so specific matches take priority
-  map.sort((a, b) => b.title.length - a.title.length);
-  return map;
+
+    // Text node — skip if already linked or inside an anchor
+    if (linked || insideAnchor) return part;
+
+    const lowerPart = part.toLowerCase();
+    const idx = lowerPart.indexOf(lowerPhrase);
+    if (idx === -1) return part;
+
+    // Word boundary check (cheap string ops, no regex)
+    const charBefore = part[idx - 1];
+    const charAfter  = part[idx + phrase.length];
+    const boundBefore = idx === 0 || /\W/.test(charBefore);
+    const boundAfter  = idx + phrase.length === part.length || /\W/.test(charAfter);
+    if (!boundBefore || !boundAfter) return part;
+
+    const matched = part.slice(idx, idx + phrase.length);
+    linked = true;
+    return (
+      part.slice(0, idx) +
+      '<a href="' + href + '" class="internal-link">' + matched + '</a>' +
+      part.slice(idx + phrase.length)
+    );
+  });
+
+  return linked ? result.join('') : null;
 }
+
+// ─── Existing links ───────────────────────────────────────────────────────────
+
+function existingLinkedSlugs(html) {
+  const slugs = new Set();
+  const re    = /href=["']\/blog\/([^"'/?#]+)["']/gi;
+  let   m;
+  while ((m = re.exec(html)) !== null) slugs.add(m[1]);
+  return slugs;
+}
+
+// ─── Process one post ─────────────────────────────────────────────────────────
 
 function processPost(post, linkMap) {
-  let html    = post.content || '';
+  let html = post.content || '';
   if (!html.trim()) return { html, linksAdded: [] };
 
-  const selfSlug   = post.slug;
-  const existing   = existingLinks(html);
+  const linkedTo   = existingLinkedSlugs(html);
   const linksAdded = [];
-  const linkedTo   = new Set(); // track slugs already linked in this post
 
-  // Pre-populate with already-linked targets
-  for (const href of existing) {
-    const m = href.match(/\/blog\/([^/?#]+)/);
-    if (m) linkedTo.add(m[1]);
-  }
-
-  for (const candidate of linkMap) {
+  for (const { urlSlug, keyword, href } of linkMap) {
     if (linksAdded.length >= MAX_LINKS_PER_POST) break;
-    if (candidate.urlSlug === selfSlug) continue;      // don't self-link
-    if (linkedTo.has(candidate.urlSlug)) continue;     // already linked
+    if (urlSlug === post.slug) continue;
+    if (linkedTo.has(urlSlug))  continue;
 
-    const href = '/blog/' + candidate.urlSlug;
-
-    for (const keyword of candidate.keywords) {
-      const newHtml = insertLink(html, keyword, href);
-      if (newHtml && newHtml !== html) {
-        html = newHtml;
-        linksAdded.push({ slug: candidate.urlSlug, phrase: keyword });
-        linkedTo.add(candidate.urlSlug);
-        break; // one link per target post
-      }
+    const newHtml = insertLink(html, keyword, href);
+    if (newHtml) {
+      html = newHtml;
+      linksAdded.push({ slug: urlSlug, phrase: keyword });
+      linkedTo.add(urlSlug);
     }
   }
 
   return { html, linksAdded };
 }
 
+// ─── Build link map ───────────────────────────────────────────────────────────
+
+function buildLinkMap(posts) {
+  const map = [];
+  for (const post of posts) {
+    const keyword = titleKeyword(post.title);
+    if (keyword) {
+      map.push({
+        urlSlug:  post.slug,
+        keyword,
+        href:     '/blog/' + post.slug,
+        titleLen: post.title.length,
+      });
+    }
+  }
+  // Longest title first (more specific matches take priority)
+  return map.sort((a, b) => b.titleLen - a.titleLen);
+}
+
 // ─── Stats ────────────────────────────────────────────────────────────────────
 
 async function printStats(prisma) {
   const posts = await prisma.post.findMany({
-    where: { status: 'published' },
+    where:  { status: 'published' },
     select: { slug: true, content: true },
   });
-
   let totalLinks = 0, postsWithLinks = 0;
   for (const post of posts) {
-    const links = (post.content || '').match(/class="internal-link"/g);
-    if (links) { totalLinks += links.length; postsWithLinks++; }
+    const n = ((post.content || '').match(/class="internal-link"/g) || []).length;
+    if (n > 0) { totalLinks += n; postsWithLinks++; }
   }
   console.log('\nInternal Link Stats');
   console.log('='.repeat(36));
   console.log('Posts with internal links : ' + postsWithLinks + ' / ' + posts.length);
   console.log('Total internal links      : ' + totalLinks);
-  console.log('Avg links per linked post : ' + (postsWithLinks ? (totalLinks / postsWithLinks).toFixed(1) : 0));
+  console.log('Avg per linked post       : ' +
+    (postsWithLinks ? (totalLinks / postsWithLinks).toFixed(1) : 0));
   console.log('');
 }
 
@@ -175,7 +163,7 @@ async function main() {
     return;
   }
 
-  if (dryRun && !args.includes('--dry-run')) {
+  if (!args.includes('--run') && !args.includes('--dry-run') && !single) {
     console.log('Usage:');
     console.log('  node scripts/auto-linker.js --dry-run        Preview changes');
     console.log('  node scripts/auto-linker.js --run            Apply to all posts');
@@ -187,52 +175,56 @@ async function main() {
   const prisma = new PrismaClient();
 
   try {
-    // Load all published posts for building the link map
     const allPosts = await prisma.post.findMany({
       where:   { status: 'published' },
       select:  { id: true, slug: true, title: true, content: true },
       orderBy: { createdAt: 'desc' },
     });
 
-    console.log('Loaded ' + allPosts.length + ' published posts');
+    console.log('Loaded ' + allPosts.length + ' posts');
     const linkMap = buildLinkMap(allPosts);
+    console.log('Link candidates: ' + linkMap.length);
 
-    // Determine which posts to process
-    const toProcess = single
-      ? allPosts.filter(p => p.slug === single)
-      : allPosts;
-
+    const toProcess = single ? allPosts.filter(p => p.slug === single) : allPosts;
     if (single && toProcess.length === 0) {
-      console.error('Post not found: ' + single);
-      process.exit(1);
+      console.error('Post not found: ' + single); process.exit(1);
     }
 
-    console.log('Processing ' + toProcess.length + ' posts' + (dryRun ? ' [DRY RUN]' : '') + '\n');
+    console.log('Processing ' + toProcess.length + ' posts' + (dryRun ? ' [DRY RUN]' : '') + '...\n');
 
-    let totalUpdated = 0, totalLinks = 0;
+    let totalUpdated = 0, totalLinks = 0, done = 0;
+    const t0 = Date.now();
 
     for (const post of toProcess) {
+      done++;
       const { html, linksAdded } = processPost(post, linkMap);
 
-      if (linksAdded.length === 0) continue;
+      if (linksAdded.length === 0) {
+        // Progress every 100 posts
+        if (done % 100 === 0) {
+          const elapsed = ((Date.now() - t0) / 1000).toFixed(1);
+          process.stdout.write('\r  ' + done + '/' + toProcess.length + ' posts (' + elapsed + 's)  ');
+        }
+        continue;
+      }
 
       totalUpdated++;
       totalLinks += linksAdded.length;
 
+      process.stdout.write('\r');
       console.log('[' + post.slug + ']');
       for (const l of linksAdded) {
         console.log('  + "' + l.phrase + '" -> /blog/' + l.slug);
       }
 
       if (!dryRun) {
-        await prisma.post.update({
-          where: { slug: post.slug },
-          data:  { content: html },
-        });
+        await prisma.post.update({ where: { slug: post.slug }, data: { content: html } });
       }
     }
 
+    const elapsed = ((Date.now() - t0) / 1000).toFixed(1);
     console.log('\n' + '─'.repeat(48));
+    console.log('Done in ' + elapsed + 's');
     console.log('Posts updated  : ' + totalUpdated);
     console.log('Links inserted : ' + totalLinks);
     if (dryRun) console.log('\n[DRY RUN] No changes written. Use --run to apply.');
