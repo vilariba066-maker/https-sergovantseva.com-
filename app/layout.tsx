@@ -14,6 +14,7 @@ export const metadata: Metadata = {
     images: [{ url: 'https://sergovantseva.com/wp-content/themes/main/img/og-default.jpg', width: 1200, height: 630 }],
   },
   twitter: { card: 'summary_large_image', site: '@SoulMatcherCoach' },
+  verification: { google: 'M0hFhXZTfQFTQmS-vB6nmkC47gWA6PFVX31VKOwbI0c' },
 };
 
 const orgJsonLd = {
