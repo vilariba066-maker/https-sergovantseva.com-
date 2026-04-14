@@ -6,7 +6,7 @@
  *   node scripts/broken-links.js                 # Check all internal links
  *   node scripts/broken-links.js --external      # Also check external links
  *   node scripts/broken-links.js --slug my-post  # Single post only
- *   node scripts/broken-links.js --fix-404       # Remove dead internal links from content
+ *   node scripts/broken-links.js --fix-404       # Remove dead links (internal + external) from content
  *
  * Output:
  *   broken-links-report.json  (written to scripts/)
@@ -125,15 +125,15 @@ async function checkAll(urls, onResult) {
 
 // ─── Fix 404s in content ─────────────────────────────────────────────────────
 
-async function fix404s(prisma, brokenInternal) {
-  if (brokenInternal.length === 0) {
-    console.log('No broken internal links to fix.');
+async function fix404s(prisma, broken) {
+  if (broken.length === 0) {
+    console.log('No broken links to fix.');
     return;
   }
 
   // Group by source post
   const bySource = {};
-  for (const item of brokenInternal) {
+  for (const item of broken) {
     if (!bySource[item.source]) bySource[item.source] = [];
     bySource[item.source].push(item);
   }
@@ -270,9 +270,12 @@ async function main() {
 
     // Fix mode
     if (doFix && results.broken.length > 0) {
-      const brokenInternal = results.broken.filter(i => i.isInternal);
-      console.log('\nFixing ' + brokenInternal.length + ' broken internal links...');
-      await fix404s(prisma, brokenInternal.flatMap(i => i.sources.map(s => ({ ...s, fullUrl: i.fullUrl }))));
+      // Fix both internal and external broken links (unwrap <a>, keep link text)
+      const allBroken = results.broken;
+      const internalBroken = allBroken.filter(i => i.isInternal).length;
+      const externalBroken = allBroken.filter(i => !i.isInternal).length;
+      console.log('\nFixing ' + allBroken.length + ' broken links (' + internalBroken + ' internal, ' + externalBroken + ' external)...');
+      await fix404s(prisma, allBroken.flatMap(i => i.sources.map(s => ({ ...s, fullUrl: i.fullUrl, href: s.href }))));
     }
 
   } finally {

@@ -1,12 +1,26 @@
 {
-  "generatedAt": "2026-04-14T15:51:30.825Z",
+  "generatedAt": "2026-04-14T16:00:33.455Z",
   "summary": {
-    "total": 90,
-    "ok": 35,
-    "broken": 35,
-    "redirects": 20
+    "total": 107,
+    "ok": 52,
+    "broken": 36,
+    "redirects": 19
   },
   "broken": [
+    {
+      "fullUrl": "https://openai.com/privacy",
+      "isInternal": false,
+      "sources": [
+        {
+          "source": "/blog/can-ai-help-you-find-love-heres-why-that-might-be-the-worst-idea",
+          "href": "https://openai.com/privacy"
+        }
+      ],
+      "href": "https://openai.com/privacy",
+      "url": "https://openai.com/privacy",
+      "status": 403,
+      "ok": false
+    },
     {
       "fullUrl": "https://www.apa.org/topics/relationships",
       "isInternal": false,
@@ -94,17 +108,17 @@
       "ok": false
     },
     {
-      "fullUrl": "https://www.pewresearch.org/internet/topic/dating-online-relationships/",
+      "fullUrl": "https://coachfederation.org",
       "isInternal": false,
       "sources": [
         {
-          "source": "/blog/how-to-start-a-conversation-on-bumble-opening-lines-that-spark-interest",
-          "href": "https://www.pewresearch.org/internet/topic/dating-online-relationships/"
+          "source": "/blog/how-to-become-a-certified-matchmaker-certification-training-guide",
+          "href": "https://coachfederation.org"
         }
       ],
-      "href": "https://www.pewresearch.org/internet/topic/dating-online-relationships/",
-      "url": "https://www.pewresearch.org/internet/topic/dating-online-relationships/",
-      "status": 404,
+      "href": "https://coachfederation.org",
+      "url": "https://coachfederation.org",
+      "status": 405,
       "ok": false
     },
     {
@@ -122,17 +136,45 @@
       "ok": false
     },
     {
-      "fullUrl": "https://coachfederation.org",
+      "fullUrl": "https://www.pewresearch.org/internet/topic/dating-online-relationships/",
       "isInternal": false,
       "sources": [
         {
-          "source": "/blog/how-to-become-a-certified-matchmaker-certification-training-guide",
-          "href": "https://coachfederation.org"
+          "source": "/blog/how-to-start-a-conversation-on-bumble-opening-lines-that-spark-interest",
+          "href": "https://www.pewresearch.org/internet/topic/dating-online-relationships/"
         }
       ],
-      "href": "https://coachfederation.org",
-      "url": "https://coachfederation.org",
-      "status": 405,
+      "href": "https://www.pewresearch.org/internet/topic/dating-online-relationships/",
+      "url": "https://www.pewresearch.org/internet/topic/dating-online-relationships/",
+      "status": 404,
+      "ok": false
+    },
+    {
+      "fullUrl": "https://www.cambridgeincolour.com",
+      "isInternal": false,
+      "sources": [
+        {
+          "source": "/blog/love-at-first-swipe-tips-for-the-best-profile-photo",
+          "href": "https://www.cambridgeincolour.com"
+        }
+      ],
+      "href": "https://www.cambridgeincolour.com",
+      "url": "https://www.cambridgeincolour.com",
+      "status": "error:ECONNRESET",
+      "ok": false
+    },
+    {
+      "fullUrl": "https://www.nimh.nih.gov/health/topics/narcissistic-personality-disorder",
+      "isInternal": false,
+      "sources": [
+        {
+          "source": "/blog/10-truths-narcissists-hide-from-you-how-to-spot-them",
+          "href": "https://www.nimh.nih.gov/health/topics/narcissistic-personality-disorder"
+        }
+      ],
+      "href": "https://www.nimh.nih.gov/health/topics/narcissistic-personality-disorder",
+      "url": "https://www.nimh.nih.gov/health/topics/narcissistic-personality-disorder",
+      "status": 404,
       "ok": false
     },
     {
@@ -150,17 +192,17 @@
       "ok": false
     },
     {
-      "fullUrl": "https://www.nimh.nih.gov/health/topics/narcissistic-personality-disorder",
+      "fullUrl": "https://www.seriouseats.com",
       "isInternal": false,
       "sources": [
         {
-          "source": "/blog/10-truths-narcissists-hide-from-you-how-to-spot-them",
-          "href": "https://www.nimh.nih.gov/health/topics/narcissistic-personality-disorder"
+          "source": "/blog/27-winter-date-ideas-to-warm-your-hearts-this-season",
+          "href": "https://www.seriouseats.com"
         }
       ],
-      "href": "https://www.nimh.nih.gov/health/topics/narcissistic-personality-disorder",
-      "url": "https://www.nimh.nih.gov/health/topics/narcissistic-personality-disorder",
-      "status": 404,
+      "href": "https://www.seriouseats.com",
+      "url": "https://www.seriouseats.com",
+      "status": 403,
       "ok": false
     },
     {
@@ -192,20 +234,6 @@
       ],
       "href": "https://www.britannica.com/topic/cross-cultural-communication",
       "url": "https://www.britannica.com/topic/cross-cultural-communication",
-      "status": 403,
-      "ok": false
-    },
-    {
-      "fullUrl": "https://www.seriouseats.com",
-      "isInternal": false,
-      "sources": [
-        {
-          "source": "/blog/27-winter-date-ideas-to-warm-your-hearts-this-season",
-          "href": "https://www.seriouseats.com"
-        }
-      ],
-      "href": "https://www.seriouseats.com",
-      "url": "https://www.seriouseats.com",
       "status": 403,
       "ok": false
     },
@@ -256,6 +284,20 @@
       "ok": false
     },
     {
+      "fullUrl": "https://www.consumer.ftc.gov/articles/0004-online-dating-safety",
+      "isInternal": false,
+      "sources": [
+        {
+          "source": "/blog/international-matchmaking-services-find-love-across-borders",
+          "href": "https://www.consumer.ftc.gov/articles/0004-online-dating-safety"
+        }
+      ],
+      "href": "https://www.consumer.ftc.gov/articles/0004-online-dating-safety",
+      "url": "https://www.consumer.ftc.gov/articles/0004-online-dating-safety",
+      "status": 404,
+      "ok": false
+    },
+    {
       "fullUrl": "https://www.psychologytoday.com/us/basics/romance-dating",
       "isInternal": false,
       "sources": [
@@ -266,20 +308,6 @@
       ],
       "href": "https://www.psychologytoday.com/us/basics/romance-dating",
       "url": "https://www.psychologytoday.com/us/basics/romance-dating",
-      "status": 404,
-      "ok": false
-    },
-    {
-      "fullUrl": "https://www.pewresearch.org/topic/dating-and-relationships/",
-      "isInternal": false,
-      "sources": [
-        {
-          "source": "/blog/secrets-of-professional-matchmaking-services-insider-tips-to-find-your-perfect-match",
-          "href": "https://www.pewresearch.org/topic/dating-and-relationships/"
-        }
-      ],
-      "href": "https://www.pewresearch.org/topic/dating-and-relationships/",
-      "url": "https://www.pewresearch.org/topic/dating-and-relationships/",
       "status": 404,
       "ok": false
     },
@@ -320,6 +348,20 @@
       "ok": false
     },
     {
+      "fullUrl": "https://www.pewresearch.org/topic/dating-and-relationships/",
+      "isInternal": false,
+      "sources": [
+        {
+          "source": "/blog/secrets-of-professional-matchmaking-services-insider-tips-to-find-your-perfect-match",
+          "href": "https://www.pewresearch.org/topic/dating-and-relationships/"
+        }
+      ],
+      "href": "https://www.pewresearch.org/topic/dating-and-relationships/",
+      "url": "https://www.pewresearch.org/topic/dating-and-relationships/",
+      "status": 404,
+      "ok": false
+    },
+    {
       "fullUrl": "https://www.apa.org/topics/self-esteem",
       "isInternal": false,
       "sources": [
@@ -330,104 +372,6 @@
       ],
       "href": "https://www.apa.org/topics/self-esteem",
       "url": "https://www.apa.org/topics/self-esteem",
-      "status": 404,
-      "ok": false
-    },
-    {
-      "fullUrl": "https://www.consumer.ftc.gov/articles/0004-online-dating-safety",
-      "isInternal": false,
-      "sources": [
-        {
-          "source": "/blog/international-matchmaking-services-find-love-across-borders",
-          "href": "https://www.consumer.ftc.gov/articles/0004-online-dating-safety"
-        }
-      ],
-      "href": "https://www.consumer.ftc.gov/articles/0004-online-dating-safety",
-      "url": "https://www.consumer.ftc.gov/articles/0004-online-dating-safety",
-      "status": 404,
-      "ok": false
-    },
-    {
-      "fullUrl": "https://www.nngroup.com/articles/profile-photos/",
-      "isInternal": false,
-      "sources": [
-        {
-          "source": "/blog/bumble-buzz-the-ultimate-guide-to-using-bumble-in-2025",
-          "href": "https://www.nngroup.com/articles/profile-photos/"
-        }
-      ],
-      "href": "https://www.nngroup.com/articles/profile-photos/",
-      "url": "https://www.nngroup.com/articles/profile-photos/",
-      "status": 404,
-      "ok": false
-    },
-    {
-      "fullUrl": "https://www.thespruce.com/",
-      "isInternal": false,
-      "sources": [
-        {
-          "source": "/blog/60-rainy-day-activities-for-adults-fun-and-productive-indoor-ideas",
-          "href": "https://www.thespruce.com/"
-        }
-      ],
-      "href": "https://www.thespruce.com/",
-      "url": "https://www.thespruce.com/",
-      "status": 403,
-      "ok": false
-    },
-    {
-      "fullUrl": "https://ico.org.uk/for-organisations/guide-to-data-protection/principles/data-minimisation/",
-      "isInternal": false,
-      "sources": [
-        {
-          "source": "/blog/privacy-agreement-a-practical-guide-to-data-protection-and-compliance",
-          "href": "https://ico.org.uk/for-organisations/guide-to-data-protection/principles/data-minimisation/"
-        }
-      ],
-      "href": "https://ico.org.uk/for-organisations/guide-to-data-protection/principles/data-minimisation/",
-      "url": "https://ico.org.uk/for-organisations/guide-to-data-protection/principles/data-minimisation/",
-      "status": 404,
-      "ok": false
-    },
-    {
-      "fullUrl": "https://www.mlb.com/",
-      "isInternal": false,
-      "sources": [
-        {
-          "source": "/blog/47-fun-summer-date-ideas-the-best-couple-bucket-list-for-2025",
-          "href": "https://www.mlb.com/"
-        }
-      ],
-      "href": "https://www.mlb.com/",
-      "url": "https://www.mlb.com/",
-      "status": 403,
-      "ok": false
-    },
-    {
-      "fullUrl": "https://www.apa.org/topics/relationships/therapy",
-      "isInternal": false,
-      "sources": [
-        {
-          "source": "/blog/attraction-to-older-men-the-science-behind-mature-partners",
-          "href": "https://www.apa.org/topics/relationships/therapy"
-        }
-      ],
-      "href": "https://www.apa.org/topics/relationships/therapy",
-      "url": "https://www.apa.org/topics/relationships/therapy",
-      "status": 404,
-      "ok": false
-    },
-    {
-      "fullUrl": "https://www.nhs.uk/conditions/narcissistic-personality-disorder/",
-      "isInternal": false,
-      "sources": [
-        {
-          "source": "/blog/reasons-narcissists-cheat-on-their-partners-7-common-motives-explained",
-          "href": "https://www.nhs.uk/conditions/narcissistic-personality-disorder/"
-        }
-      ],
-      "href": "https://www.nhs.uk/conditions/narcissistic-personality-disorder/",
-      "url": "https://www.nhs.uk/conditions/narcissistic-personality-disorder/",
       "status": 404,
       "ok": false
     },
@@ -446,6 +390,62 @@
       "ok": false
     },
     {
+      "fullUrl": "https://www.thespruce.com/",
+      "isInternal": false,
+      "sources": [
+        {
+          "source": "/blog/60-rainy-day-activities-for-adults-fun-and-productive-indoor-ideas",
+          "href": "https://www.thespruce.com/"
+        }
+      ],
+      "href": "https://www.thespruce.com/",
+      "url": "https://www.thespruce.com/",
+      "status": 403,
+      "ok": false
+    },
+    {
+      "fullUrl": "https://www.mlb.com/",
+      "isInternal": false,
+      "sources": [
+        {
+          "source": "/blog/47-fun-summer-date-ideas-the-best-couple-bucket-list-for-2025",
+          "href": "https://www.mlb.com/"
+        }
+      ],
+      "href": "https://www.mlb.com/",
+      "url": "https://www.mlb.com/",
+      "status": 403,
+      "ok": false
+    },
+    {
+      "fullUrl": "https://www.nngroup.com/articles/profile-photos/",
+      "isInternal": false,
+      "sources": [
+        {
+          "source": "/blog/bumble-buzz-the-ultimate-guide-to-using-bumble-in-2025",
+          "href": "https://www.nngroup.com/articles/profile-photos/"
+        }
+      ],
+      "href": "https://www.nngroup.com/articles/profile-photos/",
+      "url": "https://www.nngroup.com/articles/profile-photos/",
+      "status": 404,
+      "ok": false
+    },
+    {
+      "fullUrl": "https://ico.org.uk/for-organisations/guide-to-data-protection/principles/data-minimisation/",
+      "isInternal": false,
+      "sources": [
+        {
+          "source": "/blog/privacy-agreement-a-practical-guide-to-data-protection-and-compliance",
+          "href": "https://ico.org.uk/for-organisations/guide-to-data-protection/principles/data-minimisation/"
+        }
+      ],
+      "href": "https://ico.org.uk/for-organisations/guide-to-data-protection/principles/data-minimisation/",
+      "url": "https://ico.org.uk/for-organisations/guide-to-data-protection/principles/data-minimisation/",
+      "status": 404,
+      "ok": false
+    },
+    {
       "fullUrl": "https://www.gq.com/story/what-to-wear-on-a-date",
       "isInternal": false,
       "sources": [
@@ -460,17 +460,17 @@
       "ok": false
     },
     {
-      "fullUrl": "https://openai.com/privacy",
+      "fullUrl": "https://www.nhs.uk/conditions/narcissistic-personality-disorder/",
       "isInternal": false,
       "sources": [
         {
-          "source": "/blog/can-ai-help-you-find-love-heres-why-that-might-be-the-worst-idea",
-          "href": "https://openai.com/privacy"
+          "source": "/blog/reasons-narcissists-cheat-on-their-partners-7-common-motives-explained",
+          "href": "https://www.nhs.uk/conditions/narcissistic-personality-disorder/"
         }
       ],
-      "href": "https://openai.com/privacy",
-      "url": "https://openai.com/privacy",
-      "status": 403,
+      "href": "https://www.nhs.uk/conditions/narcissistic-personality-disorder/",
+      "url": "https://www.nhs.uk/conditions/narcissistic-personality-disorder/",
+      "status": 404,
       "ok": false
     },
     {
@@ -502,16 +502,16 @@
       "ok": false
     },
     {
-      "fullUrl": "https://greatergood.berkeley.edu/article/item/why_experiences_make_us_happier",
+      "fullUrl": "https://www.consumer.ftc.gov/articles/0211-online-dating-scam-protect-yourself",
       "isInternal": false,
       "sources": [
         {
-          "source": "/blog/how-much-money-do-you-need-for-top-tier-dating-do-women-really-care-about-money",
-          "href": "https://greatergood.berkeley.edu/article/item/why_experiences_make_us_happier"
+          "source": "/blog/how-to-find-a-foreign-wife-a-practical-guide-to-navigating-international-matrimony",
+          "href": "https://www.consumer.ftc.gov/articles/0211-online-dating-scam-protect-yourself"
         }
       ],
-      "href": "https://greatergood.berkeley.edu/article/item/why_experiences_make_us_happier",
-      "url": "https://greatergood.berkeley.edu/article/item/why_experiences_make_us_happier",
+      "href": "https://www.consumer.ftc.gov/articles/0211-online-dating-scam-protect-yourself",
+      "url": "https://www.consumer.ftc.gov/articles/0211-online-dating-scam-protect-yourself",
       "status": 404,
       "ok": false
     },
@@ -530,30 +530,52 @@
       "ok": false
     },
     {
-      "fullUrl": "https://www.consumer.ftc.gov/articles/0211-online-dating-scam-protect-yourself",
+      "fullUrl": "https://greatergood.berkeley.edu/article/item/why_experiences_make_us_happier",
       "isInternal": false,
       "sources": [
         {
-          "source": "/blog/how-to-find-a-foreign-wife-a-practical-guide-to-navigating-international-matrimony",
-          "href": "https://www.consumer.ftc.gov/articles/0211-online-dating-scam-protect-yourself"
+          "source": "/blog/how-much-money-do-you-need-for-top-tier-dating-do-women-really-care-about-money",
+          "href": "https://greatergood.berkeley.edu/article/item/why_experiences_make_us_happier"
         }
       ],
-      "href": "https://www.consumer.ftc.gov/articles/0211-online-dating-scam-protect-yourself",
-      "url": "https://www.consumer.ftc.gov/articles/0211-online-dating-scam-protect-yourself",
+      "href": "https://greatergood.berkeley.edu/article/item/why_experiences_make_us_happier",
+      "url": "https://greatergood.berkeley.edu/article/item/why_experiences_make_us_happier",
       "status": 404,
       "ok": false
     },
     {
-      "fullUrl": "https://www.cambridgeincolour.com",
+      "fullUrl": "https://www.apa.org",
       "isInternal": false,
       "sources": [
         {
-          "source": "/blog/love-at-first-swipe-tips-for-the-best-profile-photo",
-          "href": "https://www.cambridgeincolour.com"
+          "source": "/blog/is-she-the-one-10-signs-youve-found-your-perfect-match",
+          "href": "https://www.apa.org"
+        },
+        {
+          "source": "/blog/how-to-stop-obsessing-over-a-guy-practical-steps-to-move-on",
+          "href": "https://www.apa.org"
+        },
+        {
+          "source": "/blog/want-to-build-trust-in-your-relationship-take-risks",
+          "href": "https://www.apa.org"
         }
       ],
-      "href": "https://www.cambridgeincolour.com",
-      "url": "https://www.cambridgeincolour.com",
+      "href": "https://www.apa.org",
+      "url": "https://www.apa.org",
+      "status": "timeout",
+      "ok": false
+    },
+    {
+      "fullUrl": "https://www.apa.org/",
+      "isInternal": false,
+      "sources": [
+        {
+          "source": "/blog/20-healthy-boundaries-in-relationships-how-to-set-and-build-boundaries-for-healthier-happier-connections",
+          "href": "https://www.apa.org/"
+        }
+      ],
+      "href": "https://www.apa.org/",
+      "url": "https://www.apa.org/",
       "status": "timeout",
       "ok": false
     }
@@ -575,21 +597,6 @@
       "redirectTo": "https://digital.gov/guides/plain-language"
     },
     {
-      "fullUrl": "https://www.lifetime.com/shows/married-at-first-sight",
-      "isInternal": false,
-      "sources": [
-        {
-          "source": "/blog/mafs-uk-all-the-successful-relationships-which-couples-are-still-together",
-          "href": "https://www.lifetime.com/shows/married-at-first-sight"
-        }
-      ],
-      "href": "https://www.lifetime.com/shows/married-at-first-sight",
-      "url": "https://www.lifetime.com/shows/married-at-first-sight",
-      "status": 301,
-      "ok": true,
-      "redirectTo": "https://sergovantseva.com/404"
-    },
-    {
       "fullUrl": "http://t.me/SoulMatcherCoach",
       "isInternal": false,
       "sources": [
@@ -603,6 +610,21 @@
       "status": 301,
       "ok": true,
       "redirectTo": "https://t.me/SoulMatcherCoach"
+    },
+    {
+      "fullUrl": "https://www.lifetime.com/shows/married-at-first-sight",
+      "isInternal": false,
+      "sources": [
+        {
+          "source": "/blog/mafs-uk-all-the-successful-relationships-which-couples-are-still-together",
+          "href": "https://www.lifetime.com/shows/married-at-first-sight"
+        }
+      ],
+      "href": "https://www.lifetime.com/shows/married-at-first-sight",
+      "url": "https://www.lifetime.com/shows/married-at-first-sight",
+      "status": 301,
+      "ok": true,
+      "redirectTo": "https://sergovantseva.com/404"
     },
     {
       "fullUrl": "https://www.nps.gov/",
@@ -648,25 +670,6 @@
       "status": 301,
       "ok": true,
       "redirectTo": "http://www.ihi.org/improvement-areas"
-    },
-    {
-      "fullUrl": "https://www.apa.org/topics/divorce",
-      "isInternal": false,
-      "sources": [
-        {
-          "source": "/blog/dating-after-divorce-a-mans-journey-to-finding-love-again",
-          "href": "https://www.apa.org/topics/divorce"
-        },
-        {
-          "source": "/blog/5-rules-the-healthiest-divorced-men-follow-before-dating-again",
-          "href": "https://www.apa.org/topics/divorce"
-        }
-      ],
-      "href": "https://www.apa.org/topics/divorce",
-      "url": "https://www.apa.org/topics/divorce",
-      "status": 301,
-      "ok": true,
-      "redirectTo": "https://www.apa.org/topics/divorce-child-custody"
     },
     {
       "fullUrl": "https://www.psychologytoday.com",
@@ -827,6 +830,21 @@
       "redirectTo": "https://cutt.ly/SoulMatcherCoach"
     },
     {
+      "fullUrl": "https://cutt.ly/SoulMatcherCoach",
+      "isInternal": false,
+      "sources": [
+        {
+          "source": "/blog/why-are-you-struggling-to-meet-someone",
+          "href": "https://cutt.ly/SoulMatcherCoach"
+        }
+      ],
+      "href": "https://cutt.ly/SoulMatcherCoach",
+      "url": "https://cutt.ly/SoulMatcherCoach",
+      "status": 301,
+      "ok": true,
+      "redirectTo": "https://soulmatcher.app/app"
+    },
+    {
       "fullUrl": "http://forms.gle/74xVuwqdhwdDBAiSA",
       "isInternal": false,
       "sources": [
@@ -855,21 +873,6 @@
       "status": 301,
       "ok": true,
       "redirectTo": "https://t.me/SoulMatcherCoach/86"
-    },
-    {
-      "fullUrl": "https://cutt.ly/SoulMatcherCoach",
-      "isInternal": false,
-      "sources": [
-        {
-          "source": "/blog/why-are-you-struggling-to-meet-someone",
-          "href": "https://cutt.ly/SoulMatcherCoach"
-        }
-      ],
-      "href": "https://cutt.ly/SoulMatcherCoach",
-      "url": "https://cutt.ly/SoulMatcherCoach",
-      "status": 301,
-      "ok": true,
-      "redirectTo": "https://soulmatcher.app/app"
     }
   ]
 }
