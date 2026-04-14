@@ -5,6 +5,6 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       { userAgent: '*', allow: '/', disallow: ['/api/', '/admin/'] },
     ],
-    sitemap: 'https://sergovantseva.com/sitemap.xml',
+    sitemap: ['https://sergovantseva.com/sitemap.xml', 'https://sergovantseva.com/sitemaps/trans-index.xml'],
   };
 }

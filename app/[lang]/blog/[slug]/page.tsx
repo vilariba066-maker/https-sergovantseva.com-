@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import LangSwitcher from '@/components/LangSwitcher';
 import { postMetadata } from '@/lib/metadata';
+import { buildFaqSchema } from '@/lib/faq';
 
 interface Props { params: Promise<{ lang: string; slug: string }> }
 
@@ -85,12 +86,20 @@ export default async function LangPostPage({ params }: Props) {
     },
   };
 
+  const faqSchema = buildFaqSchema(content || '');
+
   return (
     <div style={{ paddingTop: '120px' }}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      {faqSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        />
+      )}
       <section className="container" style={{ marginBottom: '80px' }}>
 
         <Link href={blogPath(typedLang)} className="back-link" style={{ marginBottom: '24px' }}>
