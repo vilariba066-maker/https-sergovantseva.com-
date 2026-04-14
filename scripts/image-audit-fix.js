@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * image-audit-fix.js — Image audit and Pexels replacement
+ * image-audit-fix.js — Image audit and Unsplash replacement
  *
  * Usage:
  *   node scripts/image-audit-fix.js --audit              # Show stats only
@@ -12,11 +12,12 @@
  *   node scripts/image-audit-fix.js --dry-run --fill-missing  # Preview without saving
  *
  * Requires:
- *   PEXELS_API_KEY env var or scripts/pexels.key file
+ *   UNSPLASH_ACCESS_KEY env var or scripts/unsplash.key file
  *
  * Rate limits:
- *   Pexels free tier: 200 req/hour, 20,000 req/month
- *   Script defaults to 1 req/sec (3600/hour) — well within limits
+ *   Unsplash demo  : 50 req/hour  (default new keys)
+ *   Unsplash prod  : 5 000 req/hour (after approval)
+ *   Script default : 1 req/1.5s ≈ 2 400/hour — fine for production keys
  */
 
 'use strict';
@@ -28,14 +29,15 @@ const { PrismaClient } = require('@prisma/client');
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 
-const STATE_FILE   = path.join(__dirname, 'image-audit-state.json');
-const KEY_FILE     = path.join(__dirname, 'pexels.key');
-const DELAY_MS     = 1100;   // ~54 req/min, well under 200/hour limit
-const PER_PAGE     = 5;      // fetch N candidates, pick best unused one
-const ORIENTATION  = 'landscape';
-const IMAGE_SIZE   = 'large2x';  // ~1280px wide — good for og:image
+const STATE_FILE  = path.join(__dirname, 'image-audit-state.json');
+const KEY_FILE    = path.join(__dirname, 'unsplash.key');
+const DELAY_MS    = 1500;   // ~40 req/min, ≈2 400/hour (within prod limit)
+const PER_PAGE    = 5;      // fetch N candidates, pick first unused
+const ORIENTATION = 'landscape';
+// Unsplash "regular" = ~1080px wide, ideal for og:image
+const IMG_SIZE    = 'regular';
 
-// Stopwords to strip before building Pexels query
+// Stopwords stripped before building Unsplash query
 const STOPWORDS = new Set([
   'a','an','the','and','or','but','in','on','at','to','for','of','with',
   'is','are','was','were','be','been','being','have','has','had','do','does',
@@ -51,8 +53,8 @@ const STOPWORDS = new Set([
 // ─── API key ──────────────────────────────────────────────────────────────────
 
 function getApiKey() {
-  if (process.env.PEXELS_API_KEY) return process.env.PEXELS_API_KEY.trim();
-  if (fs.existsSync(KEY_FILE))    return fs.readFileSync(KEY_FILE, 'utf8').trim();
+  if (process.env.UNSPLASH_ACCESS_KEY) return process.env.UNSPLASH_ACCESS_KEY.trim();
+  if (fs.existsSync(KEY_FILE))         return fs.readFileSync(KEY_FILE, 'utf8').trim();
   return null;
 }
 
@@ -60,41 +62,44 @@ function getApiKey() {
 
 function loadState() {
   try { return JSON.parse(fs.readFileSync(STATE_FILE, 'utf8')); }
-  catch { return { assigned: {}, usedPexelsIds: new Set() }; }
+  catch { return { assigned: {}, usedIds: new Set() }; }
 }
 
 function saveState(state) {
-  const out = { ...state, usedPexelsIds: [...state.usedPexelsIds] };
+  const out = { ...state, usedIds: [...state.usedIds] };
   fs.writeFileSync(STATE_FILE, JSON.stringify(out, null, 2));
 }
 
 function hydrateState(raw) {
-  raw.usedPexelsIds = new Set(raw.usedPexelsIds || []);
+  raw.usedIds = new Set(raw.usedIds || raw.usedPexelsIds || []);
   return raw;
 }
 
-// ─── Pexels API ───────────────────────────────────────────────────────────────
+// ─── Unsplash API ─────────────────────────────────────────────────────────────
 
-function pexelsSearch(query, apiKey, page) {
+function unsplashSearch(query, apiKey, page) {
   return new Promise((resolve, reject) => {
     const params = new URLSearchParams({
       query,
-      per_page: PER_PAGE,
+      per_page:    PER_PAGE,
       orientation: ORIENTATION,
-      page: page || 1,
+      page:        page || 1,
     });
     const req = https.request({
-      hostname: 'api.pexels.com',
-      path:     '/v1/search?' + params.toString(),
+      hostname: 'api.unsplash.com',
+      path:     '/search/photos?' + params.toString(),
       method:   'GET',
-      headers:  { Authorization: apiKey },
+      headers:  {
+        'Authorization':  'Client-ID ' + apiKey,
+        'Accept-Version': 'v1',
+      },
     }, res => {
       let raw = '';
       res.on('data', c => { raw += c; });
       res.on('end', () => {
         try {
           const data = JSON.parse(raw);
-          resolve({ status: res.statusCode, data });
+          resolve({ status: res.statusCode, data, remaining: res.headers['x-ratelimit-remaining'] });
         } catch {
           resolve({ status: res.statusCode, data: null });
         }
@@ -112,51 +117,62 @@ function buildQuery(title) {
     .toLowerCase()
     .split(/\s+/)
     .filter(w => w.length > 2 && !STOPWORDS.has(w));
-  // Use first 4 meaningful words
   return words.slice(0, 4).join(' ') || title.slice(0, 40);
 }
 
-// Find an unused Pexels photo for a post
+// Find an unused Unsplash photo for a post
 async function findPhoto(title, apiKey, usedIds) {
   const query = buildQuery(title);
   process.stdout.write('  query: "' + query + '" ... ');
 
   for (let page = 1; page <= 3; page++) {
-    const result = await pexelsSearch(query, apiKey, page);
+    const result = await unsplashSearch(query, apiKey, page);
 
-    if (result.status === 429) {
-      console.log('RATE LIMITED');
-      return null;
+    if (result.status === 429 || result.status === 403) {
+      // Unsplash returns 403 (not 429) when hourly quota is exhausted
+      const isLimit = result.status === 429 ||
+        (result.data && JSON.stringify(result.data).toLowerCase().includes('rate limit'));
+      if (isLimit || result.remaining === '0') {
+        console.log('RATE LIMITED — demo quota is 50 req/hour. Run again in ~1 hour.');
+        return 'RATE_LIMITED';
+      }
+      console.log('UNAUTHORIZED — check your Unsplash Access Key');
+      process.exit(1);
     }
-    if (result.status !== 200 || !result.data || !result.data.photos) {
+    if (result.status !== 200 || !result.data || !result.data.results) {
       console.log('API error ' + result.status);
       return null;
     }
 
-    const photos = result.data.photos;
+    const photos = result.data.results;
     if (photos.length === 0) break;
 
     for (const photo of photos) {
       if (!usedIds.has(photo.id)) {
-        const url = photo.src[IMAGE_SIZE] || photo.src.large || photo.src.original;
+        const url = photo.urls[IMG_SIZE] || photo.urls.full || photo.urls.raw;
+        const photographer = photo.user ? photo.user.name : 'Unknown';
+        const unsplashUrl  = photo.links ? photo.links.html + '?utm_source=sergovantseva&utm_medium=referral' : '';
+        if (result.remaining !== undefined) {
+          process.stdout.write('[rem:' + result.remaining + '] ');
+        }
         console.log('OK (id:' + photo.id + ')');
-        return { id: photo.id, url, photographer: photo.photographer, pexelsUrl: photo.url };
+        return { id: photo.id, url, photographer, unsplashUrl };
       }
     }
-    // All photos on this page already used — try next page
   }
 
-  // Fallback: try broader query (first 2 words)
+  // Fallback: broader query (first 2 words)
   const broadQuery = buildQuery(title).split(' ').slice(0, 2).join(' ');
-  if (broadQuery !== buildQuery(title)) {
+  if (broadQuery && broadQuery !== buildQuery(title)) {
     process.stdout.write('  fallback: "' + broadQuery + '" ... ');
-    const result = await pexelsSearch(broadQuery, apiKey, 1);
-    if (result.status === 200 && result.data && result.data.photos) {
-      for (const photo of result.data.photos) {
+    const result = await unsplashSearch(broadQuery, apiKey, 1);
+    if (result.status === 200 && result.data && result.data.results) {
+      for (const photo of result.data.results) {
         if (!usedIds.has(photo.id)) {
-          const url = photo.src[IMAGE_SIZE] || photo.src.large || photo.src.original;
+          const url = photo.urls[IMG_SIZE] || photo.urls.full || photo.urls.raw;
+          const photographer = photo.user ? photo.user.name : 'Unknown';
           console.log('OK fallback (id:' + photo.id + ')');
-          return { id: photo.id, url, photographer: photo.photographer, pexelsUrl: photo.url };
+          return { id: photo.id, url, photographer, unsplashUrl: '' };
         }
       }
     }
@@ -181,7 +197,7 @@ async function audit(prisma) {
 
   const imageCounts = {};
   for (const p of withImage) {
-    imageCounts[p.featuredImage] = (imageCounts[p.featuredImage] || []);
+    if (!imageCounts[p.featuredImage]) imageCounts[p.featuredImage] = [];
     imageCounts[p.featuredImage].push(p.slug);
   }
   const duplicates = Object.entries(imageCounts).filter(([, slugs]) => slugs.length > 1);
@@ -190,7 +206,7 @@ async function audit(prisma) {
   console.log('='.repeat(48));
   console.log('Total posts       : ' + posts.length);
   console.log('With image        : ' + withImage.length);
-  console.log('Without image     : ' + withoutImage.length + '  ← need Pexels fill');
+  console.log('Without image     : ' + withoutImage.length + '  ← need Unsplash fill');
   console.log('Unique images     : ' + Object.keys(imageCounts).length);
   console.log('Duplicate URLs    : ' + duplicates.length);
   console.log('Posts w/ dupes    : ' + duplicates.reduce((s, [, sl]) => s + sl.length, 0));
@@ -205,7 +221,7 @@ async function audit(prisma) {
 
   const state = hydrateState(loadState());
   console.log('\nPreviously assigned by this script : ' + Object.keys(state.assigned).length);
-  console.log('Used Pexels IDs                    : ' + state.usedPexelsIds.size);
+  console.log('Used Unsplash IDs                  : ' + state.usedIds.size);
   console.log('');
 }
 
@@ -229,17 +245,17 @@ async function fixDuplicates(prisma, apiKey, state, dryRun) {
   console.log('Found ' + dupeGroups.length + ' duplicate group(s)\n');
 
   for (const group of dupeGroups) {
-    // Keep first post as-is, replace the rest
     const toReplace = group.slice(1);
     for (const post of toReplace) {
       console.log('[' + post.slug + ']');
-      const photo = await findPhoto(post.title, apiKey, state.usedPexelsIds);
+      const photo = await findPhoto(post.title, apiKey, state.usedIds);
+      if (photo === 'RATE_LIMITED') { console.log('Stopped — quota exhausted.'); break; }
       if (!photo) { await sleep(DELAY_MS); continue; }
 
       if (!dryRun) {
         await prisma.post.update({ where: { slug: post.slug }, data: { featuredImage: photo.url } });
-        state.assigned[post.slug] = { url: photo.url, pexelsId: photo.id, ts: Date.now() };
-        state.usedPexelsIds.add(photo.id);
+        state.assigned[post.slug] = { url: photo.url, unsplashId: photo.id, ts: Date.now() };
+        state.usedIds.add(photo.id);
         saveState(state);
       } else {
         console.log('  [DRY] would set: ' + photo.url.slice(0, 80));
@@ -250,7 +266,7 @@ async function fixDuplicates(prisma, apiKey, state, dryRun) {
   }
 }
 
-// ─── Fill missing ──────────────────────────────────────────────────────────────
+// ─── Fill missing ─────────────────────────────────────────────────────────────
 
 async function fillMissing(prisma, apiKey, state, dryRun, limit) {
   const posts = await prisma.post.findMany({
@@ -260,14 +276,13 @@ async function fillMissing(prisma, apiKey, state, dryRun, limit) {
     take:    limit || 9999,
   });
 
-  // Skip already assigned in this session
   const todo = posts.filter(p => !state.assigned[p.slug]);
 
   console.log('Posts without image : ' + posts.length);
   console.log('Already assigned    : ' + (posts.length - todo.length));
   console.log('To process          : ' + Math.min(todo.length, limit || todo.length));
   if (dryRun) console.log('[DRY RUN]\n');
-  else console.log('');
+  else        console.log('');
 
   let done = 0, failed = 0;
   const max = limit ? Math.min(todo.length, limit) : todo.length;
@@ -276,13 +291,18 @@ async function fillMissing(prisma, apiKey, state, dryRun, limit) {
     const post = todo[i];
     console.log('[' + (i + 1) + '/' + max + '] ' + post.slug);
 
-    const photo = await findPhoto(post.title, apiKey, state.usedPexelsIds);
+    const photo = await findPhoto(post.title, apiKey, state.usedIds);
+    if (photo === 'RATE_LIMITED') {
+      console.log('\nStopped early — hourly quota exhausted after ' + done + ' assignments.');
+      console.log('State saved. Run again in ~1 hour to continue from post ' + (i + 1) + '/' + max + '.');
+      break;
+    }
     if (!photo) { failed++; await sleep(DELAY_MS); continue; }
 
     if (!dryRun) {
       await prisma.post.update({ where: { slug: post.slug }, data: { featuredImage: photo.url } });
-      state.assigned[post.slug] = { url: photo.url, pexelsId: photo.id, ts: Date.now() };
-      state.usedPexelsIds.add(photo.id);
+      state.assigned[post.slug] = { url: photo.url, unsplashId: photo.id, ts: Date.now() };
+      state.usedIds.add(photo.id);
       saveState(state);
     } else {
       console.log('  [DRY] → ' + photo.url.slice(0, 80));
@@ -301,22 +321,25 @@ async function fillMissing(prisma, apiKey, state, dryRun, limit) {
 // ─── Single post ──────────────────────────────────────────────────────────────
 
 async function fixSlug(prisma, slug, apiKey, state, dryRun) {
-  const post = await prisma.post.findUnique({ where: { slug }, select: { slug: true, title: true, featuredImage: true } });
+  const post = await prisma.post.findUnique({
+    where:  { slug },
+    select: { slug: true, title: true, featuredImage: true },
+  });
   if (!post) { console.error('Post not found: ' + slug); process.exit(1); }
 
   console.log('Post    : ' + post.title);
   console.log('Current : ' + (post.featuredImage || '(none)'));
 
-  const photo = await findPhoto(post.title, apiKey, state.usedPexelsIds);
+  const photo = await findPhoto(post.title, apiKey, state.usedIds);
   if (!photo) { console.log('No photo found.'); return; }
 
   console.log('New URL : ' + photo.url);
-  console.log('Credit  : ' + photo.photographer + ' — ' + photo.pexelsUrl);
+  console.log('Credit  : ' + photo.photographer + ' — ' + photo.unsplashUrl);
 
   if (!dryRun) {
     await prisma.post.update({ where: { slug }, data: { featuredImage: photo.url } });
-    state.assigned[slug] = { url: photo.url, pexelsId: photo.id, ts: Date.now() };
-    state.usedPexelsIds.add(photo.id);
+    state.assigned[slug] = { url: photo.url, unsplashId: photo.id, ts: Date.now() };
+    state.usedIds.add(photo.id);
     saveState(state);
     console.log('Saved.');
   } else {
@@ -329,9 +352,10 @@ async function fixSlug(prisma, slug, apiKey, state, dryRun) {
 async function main() {
   const args   = process.argv.slice(2);
   const dryRun = args.includes('--dry-run');
-  const limit  = args.includes('--limit') ? parseInt(args[args.indexOf('--limit') + 1]) : null;
+  const limit  = args.includes('--limit')
+    ? parseInt(args[args.indexOf('--limit') + 1])
+    : null;
 
-  // Audit needs no API key
   if (args.includes('--audit')) {
     const prisma = new PrismaClient();
     try { await audit(prisma); } finally { await prisma.$disconnect(); }
@@ -345,20 +369,19 @@ async function main() {
     console.log('  node scripts/image-audit-fix.js --fill-missing [--limit N] [--dry-run]');
     console.log('  node scripts/image-audit-fix.js --all [--limit N] [--dry-run]');
     console.log('  node scripts/image-audit-fix.js --slug <slug> [--dry-run]');
-    console.log('\nRequires: PEXELS_API_KEY env var or scripts/pexels.key file');
+    console.log('\nRequires: UNSPLASH_ACCESS_KEY env var or scripts/unsplash.key file');
     return;
   }
 
-  // All other modes need API key
   const apiKey = getApiKey();
   if (!apiKey) {
-    console.error('PEXELS_API_KEY not found.');
-    console.error('Set env var: export PEXELS_API_KEY=your_key');
-    console.error('Or save to: scripts/pexels.key');
+    console.error('UNSPLASH_ACCESS_KEY not found.');
+    console.error('Set env var: export UNSPLASH_ACCESS_KEY=your_key');
+    console.error('Or save to: scripts/unsplash.key');
     process.exit(1);
   }
 
-  console.log('Pexels API key: ' + apiKey.slice(0, 8) + '...');
+  console.log('Unsplash key: ' + apiKey.slice(0, 6) + '...');
   if (dryRun) console.log('[DRY RUN MODE]\n');
 
   const state  = hydrateState(loadState());
