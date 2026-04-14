@@ -1,0 +1,66 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    name: Build & Deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          NEXT_PUBLIC_SITE_URL: https://sergovantseva.com
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Sync files via rsync
+        run: |
+          rsync -az --delete             --exclude='.git'             --exclude='node_modules'             --exclude='.env'             --exclude='.env.local'             --exclude='.next'             -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no"             ./ root@${{ secrets.SSH_HOST }}:/var/www/nextblog/
+
+      - name: Sync .next build output
+        run: |
+          rsync -az --delete             -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no"             .next/ root@${{ secrets.SSH_HOST }}:/var/www/nextblog/.next/
+
+      - name: Install production deps & restart PM2
+        run: |
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@${{ secrets.SSH_HOST }} << 'ENDSSH'
+            set -e
+            cd /var/www/nextblog
+            npm ci --omit=dev
+            pm2 restart nextblog
+            pm2 save
+          ENDSSH
+
+      - name: Verify deployment
+        run: |
+          sleep 5
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://sergovantseva.com/)
+          echo "HTTP status: $STATUS"
+          if [ "$STATUS" != "200" ]; then
+            echo "Deployment check failed!"
+            exit 1
+          fi
+          echo "Deployment successful!"
