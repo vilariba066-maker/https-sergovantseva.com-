@@ -3,27 +3,43 @@ import { LANG_CODES, postPath, blogPath } from '@/lib/i18n';
 import type { Lang } from '@/lib/i18n';
 
 const BASE = 'https://sergovantseva.com';
+const SITE_NAME = 'Natalia Sergovantseva — Relationship Coach';
+const DEFAULT_OG_IMAGE = BASE + '/wp-content/themes/main/img/og-default.jpg';
+const TWITTER_HANDLE = '@SoulMatcherCoach';
 
-function buildAlternates(paths: Partial<Record<Lang, string>>) {
-  const enPath = paths['en'] || '/';
-  const languages: Record<string, string> = { 'x-default': BASE + enPath };
+function buildLangAlternates(pathFn: (l: Lang) => string) {
+  const languages: Record<string, string> = { 'x-default': BASE + pathFn('en') };
   for (const lang of LANG_CODES) {
-    const path = paths[lang as Lang] || enPath;
-    languages[lang] = BASE + path;
+    languages[lang] = BASE + pathFn(lang);
   }
-  return { canonical: BASE + enPath, languages };
+  return languages;
 }
 
 export function blogMetadata(lang: Lang, title: string, description?: string): Metadata {
-  const paths = Object.fromEntries(
-    LANG_CODES.map(l => [l, blogPath(l as Lang)])
-  ) as Partial<Record<Lang, string>>;
-  const { canonical, languages } = buildAlternates(paths);
+  const canonical = BASE + blogPath(lang);
   return {
     title,
     description,
-    alternates: { canonical, languages },
-    openGraph: { title, description, url: BASE + blogPath(lang) },
+    alternates: {
+      canonical,
+      languages: buildLangAlternates(blogPath),
+    },
+    openGraph: {
+      title,
+      description,
+      url: canonical,
+      siteName: SITE_NAME,
+      images: [{ url: DEFAULT_OG_IMAGE, width: 1200, height: 630, alt: title }],
+      type: 'website',
+      locale: lang,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      site: TWITTER_HANDLE,
+      title,
+      description,
+      images: [DEFAULT_OG_IMAGE],
+    },
   };
 }
 
@@ -34,20 +50,30 @@ export function postMetadata(
   description?: string,
   image?: string | null,
 ): Metadata {
-  const paths = Object.fromEntries(
-    LANG_CODES.map(l => [l, postPath(l as Lang, slug)])
-  ) as Partial<Record<Lang, string>>;
-  const { canonical, languages } = buildAlternates(paths);
+  const canonical = BASE + postPath(lang, slug);
+  const ogImage = image || DEFAULT_OG_IMAGE;
   return {
     title,
     description,
-    alternates: { canonical, languages },
+    alternates: {
+      canonical,
+      languages: buildLangAlternates(l => postPath(l, slug)),
+    },
     openGraph: {
       title,
       description,
-      url: BASE + postPath(lang, slug),
-      images: image ? [{ url: image }] : [],
+      url: canonical,
+      siteName: SITE_NAME,
+      images: [{ url: ogImage, width: 1200, height: 630, alt: title }],
       type: 'article',
+      locale: lang,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      site: TWITTER_HANDLE,
+      title,
+      description,
+      images: [ogImage],
     },
   };
 }

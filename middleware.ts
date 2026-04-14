@@ -11,7 +11,10 @@ export function middleware(req: NextRequest) {
     const rest = '/' + segments.slice(1).join('/');
     return NextResponse.redirect(new URL(rest || '/', req.url), 301);
   }
-  return NextResponse.next();
+  const lang = (segments[0] && LANG_CODES.has(segments[0])) ? segments[0] : 'en';
+  const response = NextResponse.next();
+  response.headers.set('x-lang', lang);
+  return response;
 }
 
 export const config = {
