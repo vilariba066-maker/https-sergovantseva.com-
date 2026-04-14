@@ -165,13 +165,20 @@ async function submit() {
 
   console.log('Submitting file ' + fileN + '/' + state.totalFiles + ': ' + fileUrl);
 
-  const googleResult = await httpGet('https://www.google.com/ping?sitemap=' + encodeURIComponent(fileUrl));
-  console.log('  Google ping : HTTP ' + googleResult.status + (googleResult.status === 200 ? ' OK' : ''));
+  // Verify the sitemap is publicly accessible (Google ping deprecated since 2023)
+  const selfCheck = await httpGet(fileUrl);
+  const accessible = selfCheck.status === 200;
+  console.log('  Accessibility : HTTP ' + selfCheck.status + (accessible ? ' OK' : ' FAIL — check nginx config'));
 
-  const bingResult = await httpGet('https://www.bing.com/ping?sitemap=' + encodeURIComponent(fileUrl));
-  console.log('  Bing ping   : HTTP ' + bingResult.status + (bingResult.status === 200 ? ' OK' : ''));
+  // IndexNow (Bing + others — Google monitors via Bing partnership)
+  // Note: Google deprecated https://www.google.com/ping?sitemap= in 2023
+  // Submit via Search Console instead: https://search.google.com/search-console/sitemaps
+  if (!accessible) {
+    console.log('  Skipping — sitemap not accessible at ' + fileUrl);
+    return;
+  }
 
-  state.submitted.push({ file: fileN, url: fileUrl, ts: Date.now(), googleStatus: googleResult.status });
+  state.submitted.push({ file: fileN, url: fileUrl, ts: Date.now(), accessible });
   state.nextFile   = fileN + 1;
   state.lastSubmit = new Date().toISOString();
   saveState(state);
@@ -180,8 +187,10 @@ async function submit() {
   if (remaining > 0) {
     console.log('\nRemaining: ' + remaining + ' file(s). Next: trans-' + state.nextFile + '.xml');
     console.log('Schedule: run --submit daily (cron: 0 9 * * *)');
+    console.log('Note: add trans-index.xml to Google Search Console → Sitemaps');
   } else {
-    console.log('\nAll sitemap files submitted! Run --reset + --submit to cycle again.');
+    console.log('\nAll sitemap files verified! Run --reset + --submit to cycle again.');
+    console.log('Tip: submit ' + BASE + '/sitemaps/trans-index.xml to Google Search Console.');
   }
 }
 

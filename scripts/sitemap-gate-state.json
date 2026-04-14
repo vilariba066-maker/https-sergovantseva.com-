@@ -1,0 +1,43 @@
+{
+  "nextFile": 5,
+  "submitted": [
+    {
+      "file": 1,
+      "url": "https://sergovantseva.com/sitemaps/trans-1.xml",
+      "ts": 1776183662253,
+      "googleStatus": 404
+    },
+    {
+      "file": 2,
+      "url": "https://sergovantseva.com/sitemaps/trans-2.xml",
+      "ts": 1776183915089,
+      "googleStatus": 404
+    },
+    {
+      "file": 1,
+      "url": "https://sergovantseva.com/sitemaps/trans-1.xml",
+      "ts": 1776183984108,
+      "accessible": true
+    },
+    {
+      "file": 2,
+      "url": "https://sergovantseva.com/sitemaps/trans-2.xml",
+      "ts": 1776183984287,
+      "accessible": true
+    },
+    {
+      "file": 3,
+      "url": "https://sergovantseva.com/sitemaps/trans-3.xml",
+      "ts": 1776183984496,
+      "accessible": true
+    },
+    {
+      "file": 4,
+      "url": "https://sergovantseva.com/sitemaps/trans-4.xml",
+      "ts": 1776183984704,
+      "accessible": true
+    }
+  ],
+  "lastSubmit": "2026-04-14T16:26:24.704Z",
+  "totalFiles": 4
+}
