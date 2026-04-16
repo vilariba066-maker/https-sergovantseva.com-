@@ -73,9 +73,13 @@ function countInternalLinks(html) {
 
 function existingLinkedSlugs(html) {
   const slugs = new Set();
-  const re    = /href=["']\/blog\/([^"'/?#]+)["']/gi;
-  let   m;
-  while ((m = re.exec(html)) !== null) slugs.add(m[1]);
+  // blog posts
+  const re1 = /href=["']\/blog\/([^"'/?#]+)["']/gi;
+  let m;
+  while ((m = re1.exec(html)) !== null) slugs.add(m[1]);
+  // hub pages  e.g. /hub/relationship-guide
+  const re2 = /href=["']\/hub\/([^"'/?#]+)["']/gi;
+  while ((m = re2.exec(html)) !== null) slugs.add('hub/' + m[1]);
   return slugs;
 }
 
@@ -140,6 +144,33 @@ function insertLink(html, keyword, href) {
   return linked ? result.join('') : null;
 }
 
+// ─── Hub page links ───────────────────────────────────────────────────────────
+// These are injected into the link map with freq=0 (highest priority).
+// Max 1 hub link per hub per post (enforced by linkedTo tracking via urlSlug).
+
+const HUB_LINKS = [
+  {
+    urlSlug: 'hub/relationship-guide',
+    href:    '/hub/relationship-guide',
+    keywords: ['communication', 'conflict', 'boundaries', 'intimacy', 'commitment', 'vulnerability'],
+  },
+  {
+    urlSlug: 'hub/dating-guide',
+    href:    '/hub/dating-guide',
+    keywords: ['compatibility', 'attraction', 'compatible', 'chemistry', 'soulmate'],
+  },
+  {
+    urlSlug: 'hub/self-growth-guide',
+    href:    '/hub/self-growth-guide',
+    keywords: ['healing', 'trauma', 'anxiety', 'confidence', 'mindset', 'overthinking'],
+  },
+  {
+    urlSlug: 'hub/attachment-guide',
+    href:    '/hub/attachment-guide',
+    keywords: ['attachment', 'psychology', 'avoidant', 'secure'],
+  },
+];
+
 // ─── Build link map ───────────────────────────────────────────────────────────
 
 function buildLinkMap(posts) {
@@ -154,6 +185,17 @@ function buildLinkMap(posts) {
   }
 
   const map = [];
+
+  // Hub entries first (freq=0 → always sorted highest priority)
+  for (const hub of HUB_LINKS) {
+    for (const kw of hub.keywords) {
+      if (kw.length >= MIN_KW_LEN && !STOP.has(kw)) {
+        map.push({ urlSlug: hub.urlSlug, keyword: kw, href: hub.href, freq: 0 });
+      }
+    }
+  }
+
+  // Regular post entries
   for (const post of posts) {
     const keywords = extractKeywords(post.title, wordFreq, maxCommon);
     for (const kw of keywords) {
@@ -172,18 +214,28 @@ function buildLinkMap(posts) {
 
 // ─── Process one post ─────────────────────────────────────────────────────────
 
-function processPost(post, linkMap) {
+const MAX_HUB_LINKS = 2; // max hub links to add per post in --hub-links mode
+
+function processPost(post, linkMap, hubLinksOnly = false) {
   let html = post.content || '';
   if (!html.trim()) return { html, linksAdded: [], skipped: 'empty' };
 
   const existing = countInternalLinks(html);
-  if (existing >= MIN_LINKS) return { html, linksAdded: [], skipped: 'has-links' };
+
+  if (!hubLinksOnly) {
+    if (existing >= MIN_LINKS) return { html, linksAdded: [], skipped: 'has-links' };
+  }
 
   const linkedTo   = existingLinkedSlugs(html);
   const linksAdded = [];
-  const need       = MAX_LINKS - existing;
+  const need       = hubLinksOnly ? MAX_HUB_LINKS : (MAX_LINKS - existing);
 
-  for (const { urlSlug, keyword, href } of linkMap) {
+  // In hub-links mode only iterate hub entries (freq === 0)
+  const entries = hubLinksOnly
+    ? linkMap.filter(e => e.freq === 0)
+    : linkMap;
+
+  for (const { urlSlug, keyword, href } of entries) {
     if (linksAdded.length >= need) break;
     if (urlSlug === post.slug)    continue;
     if (linkedTo.has(urlSlug))    continue;
@@ -191,7 +243,7 @@ function processPost(post, linkMap) {
     const newHtml = insertLink(html, keyword, href);
     if (newHtml) {
       html = newHtml;
-      linksAdded.push({ slug: urlSlug, keyword });
+      linksAdded.push({ slug: urlSlug, keyword, href });
       linkedTo.add(urlSlug);
     }
   }
@@ -229,11 +281,12 @@ async function printStats(prisma) {
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 async function main() {
-  const args     = process.argv.slice(2);
-  const dryRun   = !args.includes('--run') && !args.includes('--slug');
-  const single   = args.includes('--slug') ? args[args.indexOf('--slug') + 1] : null;
-  const limitArg = args.find(a => a.startsWith('--limit='));
-  const limit    = limitArg ? parseInt(limitArg.split('=')[1], 10) : null;
+  const args        = process.argv.slice(2);
+  const dryRun      = !args.includes('--run') && !args.includes('--slug');
+  const single      = args.includes('--slug') ? args[args.indexOf('--slug') + 1] : null;
+  const limitArg    = args.find(a => a.startsWith('--limit='));
+  const limit       = limitArg ? parseInt(limitArg.split('=')[1], 10) : null;
+  const hubLinksOnly = args.includes('--hub-links');
 
   if (args.includes('--stats')) {
     const prisma = new PrismaClient();
@@ -241,12 +294,13 @@ async function main() {
     return;
   }
 
-  if (!args.includes('--run') && !args.includes('--dry-run') && !single) {
+  if (!args.includes('--run') && !args.includes('--dry-run') && !single && !hubLinksOnly) {
     console.log('Usage:');
     console.log('  node scripts/auto-linker.js --dry-run          Preview, no writes');
     console.log('  node scripts/auto-linker.js --run              Apply to all eligible posts');
     console.log('  node scripts/auto-linker.js --limit=N          Process only N posts');
     console.log('  node scripts/auto-linker.js --slug my-post     Single post');
+    console.log('  node scripts/auto-linker.js --hub-links        Add hub links to all posts');
     console.log('  node scripts/auto-linker.js --stats            Link statistics');
     return;
   }
@@ -271,6 +325,11 @@ async function main() {
     if (single) {
       toProcess = allPosts.filter(p => p.slug === single);
       if (toProcess.length === 0) { console.error('Post not found: ' + single); process.exit(1); }
+    } else if (hubLinksOnly) {
+      // Process ALL posts — hub links pass ignores MIN_LINKS threshold
+      toProcess = allPosts.filter(p => (p.content || '').trim());
+      if (limit) toProcess = toProcess.slice(0, limit);
+      console.log('Hub-links mode: adding up to ' + MAX_HUB_LINKS + ' hub links per post (' + toProcess.length + ' posts)');
     } else {
       // Eligible = posts below MIN_LINKS threshold
       toProcess = allPosts.filter(p => countInternalLinks(p.content || '') < MIN_LINKS);
@@ -281,10 +340,11 @@ async function main() {
           .sort((a, b) => countInternalLinks(a.content || '') - countInternalLinks(b.content || ''))
           .slice(0, limit);
       }
+
+      const alreadyDone = allPosts.length - toProcess.length;
+      console.log('Already at 3+ links  : ' + alreadyDone + ' (skipped)');
     }
 
-    const alreadyDone = allPosts.length - allPosts.filter(p => countInternalLinks(p.content || '') < MIN_LINKS).length;
-    console.log('Already at 3+ links  : ' + alreadyDone + ' (skipped)');
     console.log('Eligible to process  : ' + toProcess.length + (limit ? ' (limited to ' + limit + ')' : ''));
     console.log('Processing ' + toProcess.length + ' posts' + (dryRun ? ' [DRY RUN]' : '') + '...\n');
 
@@ -294,7 +354,7 @@ async function main() {
 
     for (const post of toProcess) {
       done++;
-      const { html, linksAdded, skipped } = processPost(post, linkMap);
+      const { html, linksAdded, skipped } = processPost(post, linkMap, hubLinksOnly);
 
       if (skipped === 'empty') { skippedEmpty++; continue; }
 
@@ -313,7 +373,7 @@ async function main() {
       process.stdout.write('\r');
       console.log('[' + post.slug + ']');
       for (const l of linksAdded) {
-        console.log('  + "' + l.keyword + '" → /blog/' + l.slug);
+        console.log('  + "' + l.keyword + '" → ' + l.href);
       }
 
       if (!dryRun) {

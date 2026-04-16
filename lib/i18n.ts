@@ -27,3 +27,7 @@ export function blogPath(lang: Lang): string {
 export function postPath(lang: Lang, slug: string): string {
   return lang === 'en' ? '/blog/' + slug : '/' + lang + '/blog/' + slug;
 }
+
+export function hubPath(lang: Lang, slug: string): string {
+  return lang === 'en' ? '/hub/' + slug : '/' + lang + '/hub/' + slug;
+}
