@@ -18,6 +18,8 @@ const SCRIPTS: Script[] = [
   { id: 'auto-linker-run',    label: 'Auto-link 100 posts',   description: '--run --limit=100', background: true },
   { id: 'content-stats',      label: 'Content Stats',         description: '--stats' },
   { id: 'retranslate-check',  label: 'Check Fake Translations', description: '--check' },
+  { id: 'gsc-stats',          label: 'GSC Opportunity Report',  description: '--stats (CTR < 3%)' },
+  { id: 'gsc-run',            label: 'GSC Feedback Loop',       description: '--run --limit=50 (background)' },
 ];
 
 export function ScriptRunner() {

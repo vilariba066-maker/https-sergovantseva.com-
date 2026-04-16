@@ -14,6 +14,8 @@ const SCRIPTS: Record<string, ScriptDef> = {
   'auto-linker-run':   { file: 'auto-linker.js',         args: ['--run', '--limit=100'], background: true },
   'content-stats':     { file: 'content-improver.js',    args: ['--stats'] },
   'retranslate-check': { file: 'retranslate-fakes.js',   args: ['--check'] },
+  'gsc-stats':         { file: 'gsc-feedback-loop.js',   args: ['--stats'] },
+  'gsc-run':           { file: 'gsc-feedback-loop.js',   args: ['--run', '--limit=50'], background: true },
 };
 
 function checkAuth(req: NextRequest): boolean {
