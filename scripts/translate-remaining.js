@@ -31,12 +31,10 @@ const CONFIG = {
 
   // Маппинг: код в БД -> код WowaTranslate (ISO 639-1 uppercase)
   LANG_MAP: {
-    'de': 'DE', 'el': 'EL', 'tr': 'TR', 'ru': 'RU',
-    'pt': 'PT', 'es': 'ES', 'it': 'IT', 'fr': 'FR',
-    'pl': 'PL', 'nl': 'NL', 'sv': 'SV', 'cs': 'CS',
-    'ro': 'RO', 'fi': 'FI', 'uk': 'UK', 'sk': 'SK',
-    'ja': 'JA', 'zh': 'ZH', 'ko': 'KO', 'ar': 'AR',
-    'hi': 'HI'
+    // Only the 10 languages the site serves (see lib/i18n.ts)
+    'ru': 'RU', 'de': 'DE', 'fr': 'FR', 'es': 'ES',
+    'it': 'IT', 'pl': 'PL', 'pt': 'PT', 'tr': 'TR',
+    'uk': 'UK', 'el': 'EL',
   },
 
   BATCH_SIZE: 50,
