@@ -31,12 +31,26 @@ const orgJsonLd = {
       description: 'Relationship coach helping people create harmonious, fulfilling relationships through individual coaching and group programs.',
     },
     {
+      '@type': 'Organization',
+      '@id': 'https://sergovantseva.com/#organization',
+      name: 'Natalia Sergovantseva',
+      url: 'https://sergovantseva.com',
+      logo: 'https://sergovantseva.com/wp-content/themes/main/img/logo.svg',
+      sameAs: ['https://t.me/SoulMatcherCoach'],
+      founder: { '@id': 'https://sergovantseva.com/#person' },
+    },
+    {
       '@type': 'WebSite',
       '@id': 'https://sergovantseva.com/#website',
       url: 'https://sergovantseva.com',
       name: 'Natalia Sergovantseva — Relationship Coach',
-      publisher: { '@id': 'https://sergovantseva.com/#person' },
+      publisher: { '@id': 'https://sergovantseva.com/#organization' },
       inLanguage: ['en','ru','de','fr','es','it','pl','pt','tr','uk','el'],
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: 'https://sergovantseva.com/blog?q={search_term_string}',
+        'query-input': 'required name=search_term_string',
+      },
     },
   ],
 };
