@@ -1,11 +1,13 @@
 import { prisma } from '@/lib/db';
-import { LANGUAGES, LANG_CODES, isValidLang, blogPath } from '@/lib/i18n';
+import { LANGUAGES, LANG_CODES, isValidLang, blogPath, postPath } from '@/lib/i18n';
 import type { Lang } from '@/lib/i18n';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import LangSwitcher from '@/components/LangSwitcher';
 import { postMetadata } from '@/lib/metadata';
 import { buildFaqSchema } from '@/lib/faq';
+
+const BASE = 'https://sergovantseva.com';
 
 interface Props { params: Promise<{ lang: string; slug: string }> }
 
@@ -26,19 +28,54 @@ export async function generateMetadata({ params }: Props) {
   const { lang, slug } = await params;
   if (!isValidLang(lang)) return {};
   const typedLang = lang as Lang;
-  const post = await prisma.post.findUnique({ where: { slug } });
+
+  // Fetch post with all translations to build filtered hreflang
+  const post = await prisma.post.findUnique({
+    where: { slug },
+    include: {
+      translations: {
+        select: { lang: true, slug: true, title: true, isReal: true, sitemapAt: true },
+      },
+    },
+  });
   if (!post) return {};
-  const t = await prisma.postTranslation.findFirst({ where: { post: { slug }, lang: typedLang } });
+
+  const t = await prisma.postTranslation.findFirst({
+    where: { post: { slug }, lang: typedLang },
+  });
+
   const translatedContent = t?.content || post.content || '';
   const wordCount = countWords(translatedContent);
+
+  // Fake translation: title was not changed from original (instruction 7.3)
+  const isFakeTranslation = !!t && t.title === post.title;
+
+  // Build hreflang only for real, sitemap-ready translations (instruction 7.3)
+  const langAlternates: Record<string, string> = {
+    'en': BASE + '/blog/' + slug,
+    'x-default': BASE + '/blog/' + slug,
+  };
+  for (const tr of post.translations) {
+    if (tr.isReal && tr.sitemapAt && tr.title !== post.title) {
+      const trSlug = tr.slug || slug;
+      langAlternates[tr.lang] = BASE + postPath(tr.lang as Lang, trSlug);
+    }
+  }
+
   const meta = postMetadata(
     typedLang,
     slug,
     t?.seoTitle || t?.title || post.seoTitle || post.title,
     t?.seoDescription || post.seoDescription || post.excerpt || '',
-    post.featuredImage
+    post.featuredImage,
+    langAlternates,
   );
-  if (wordCount < 200) meta.robots = { index: false, follow: true };
+
+  // noindex: fake translation OR content too short
+  if (isFakeTranslation || wordCount < 300) {
+    meta.robots = { index: false, follow: true };
+  }
+
   return meta;
 }
 

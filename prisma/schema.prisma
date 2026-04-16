@@ -27,17 +27,19 @@ model Post {
 }
 
 model PostTranslation {
-  id           String   @id @default(uuid())
-  postId       String   @map("post_id")
-  lang         String
-  title        String?
-  excerpt      String?
-  content      String?
-  slug         String?
-  seoTitle     String?  @map("seo_title")
-  seoDescription String? @map("seo_description")
-  translatedAt DateTime @default(now()) @map("translated_at")
-  post         Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  id             String    @id @default(uuid())
+  postId         String    @map("post_id")
+  lang           String
+  title          String?
+  excerpt        String?
+  content        String?
+  slug           String?
+  seoTitle       String?   @map("seo_title")
+  seoDescription String?   @map("seo_description")
+  translatedAt   DateTime  @default(now()) @map("translated_at")
+  isReal         Boolean   @default(true) @map("is_real")
+  sitemapAt      DateTime? @map("sitemap_at")
+  post           Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
   @@unique([postId, lang])
   @@map("post_translations")
 }
@@ -51,8 +53,8 @@ model Category {
 }
 
 model PostCategory {
-  postId     String @map("post_id")
-  categoryId String @map("category_id")
+  postId     String   @map("post_id")
+  categoryId String   @map("category_id")
   post       Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
   category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   @@id([postId, categoryId])

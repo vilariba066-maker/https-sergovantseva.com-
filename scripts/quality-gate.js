@@ -8,6 +8,7 @@
  *   node scripts/quality-gate.js --slug my-post   # Single post
  *   node scripts/quality-gate.js --failing        # Show only posts with issues
  *   node scripts/quality-gate.js --json           # JSON output (CI/scripts)
+ *   node scripts/quality-gate.js --noindex         # List posts that will be noindexed (thin content)
  */
 
 'use strict';
@@ -82,18 +83,20 @@ function checkPost(post) {
 
 async function main() {
   const args        = process.argv.slice(2);
-  const failingOnly = args.includes('--failing');
+  const noindexOnly  = args.includes('--noindex');
+  const failingOnly  = args.includes('--failing') || noindexOnly;
   const jsonOut     = args.includes('--json');
   const drafts      = args.includes('--drafts');
   const single      = args.includes('--slug') ? args[args.indexOf('--slug') + 1] : null;
 
-  if (!args.includes('--all') && !drafts && !single && !failingOnly) {
+  if (!args.includes('--all') && !drafts && !single && !failingOnly && !noindexOnly) {
     console.log('Usage:');
     console.log('  node scripts/quality-gate.js --all            All published posts');
     console.log('  node scripts/quality-gate.js --drafts         Draft posts');
     console.log('  node scripts/quality-gate.js --slug <slug>    Single post');
     console.log('  node scripts/quality-gate.js --failing        Failing posts only');
     console.log('  node scripts/quality-gate.js --json           JSON output');
+    console.log('  node scripts/quality-gate.js --noindex         Posts that will be noindexed (thin content)');
     return;
   }
 
@@ -129,6 +132,26 @@ async function main() {
     console.log('Passing : ' + passing.length + ' (' + (passing.length / posts.length * 100).toFixed(1) + '%)');
     console.log('Failing : ' + failing.length);
     console.log('');
+
+    // --noindex: show only thin-content posts (those noindexed at runtime)
+    if (noindexOnly) {
+      const thin = failing.filter(r => r.issues.some(i => i.startsWith('thin content')));
+      console.log('\nNoindex Report (thin content < 300 words)');
+      console.log('='.repeat(56));
+      console.log('Total published : ' + posts.length);
+      console.log('Will be noindex : ' + thin.length);
+      if (thin.length === 0) {
+        console.log('No thin-content posts — nothing will be noindexed.');
+      } else {
+        console.log('\nAffected posts:');
+        for (const r of thin) {
+          const issue = r.issues.find(i => i.startsWith('thin content'));
+          console.log('  [' + r.slug + ']');
+          console.log('    x ' + issue);
+        }
+      }
+      return;
+    }
 
     if (failing.length === 0) {
       console.log('All posts pass quality checks!');

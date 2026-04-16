@@ -45,3 +45,14 @@ next-env.d.ts
 # Google Indexing API — never commit service account key
 scripts/service-account.json
 scripts/indexing-state.json
+
+# API keys
+scripts/unsplash.key
+
+# Backup files
+*.bak
+
+# Generated state / report files
+scripts/sitemap-gate-state.json
+scripts/image-audit-state.json
+scripts/broken-links-report.json

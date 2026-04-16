@@ -19,7 +19,20 @@ function buildLangAlternates(pathFn: (l: Lang) => string) {
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const posts = await prisma.post.findMany({
     where: { status: 'published' },
-    select: { slug: true, updatedAt: true },
+    select: {
+      slug: true,
+      title: true,
+      updatedAt: true,
+      translations: {
+        select: {
+          lang: true,
+          slug: true,
+          title: true,
+          isReal: true,
+          sitemapAt: true,
+        },
+      },
+    },
     orderBy: { updatedAt: 'desc' },
   });
 
@@ -43,14 +56,35 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     alternates: { languages: buildLangAlternates(blogPath) },
   });
 
-  // Individual posts with all language alternates
+  // Individual posts — only include translation URLs that are real and sitemap-ready
   for (const post of posts) {
+    // Instruction 7.3: only real translations with sitemapAt set and different title
+    const realLangs = post.translations
+      .filter(t => t.isReal && t.sitemapAt && t.title !== post.title)
+      .map(t => t.lang);
+
+    const translationMap = Object.fromEntries(
+      post.translations.map(t => [t.lang, t])
+    );
+
+    // Build alternates: en + x-default always point to original slug
+    const langAlternates: Record<string, string> = {
+      'en': BASE + '/blog/' + post.slug,
+      'x-default': BASE + '/blog/' + post.slug,
+    };
+
+    for (const lang of realLangs) {
+      const t = translationMap[lang];
+      const slug = t?.slug || post.slug; // use translated slug, fallback to original
+      langAlternates[lang] = BASE + postPath(lang as Lang, slug);
+    }
+
     entries.push({
       url: BASE + '/blog/' + post.slug,
       lastModified: post.updatedAt,
       changeFrequency: 'weekly',
       priority: 0.8,
-      alternates: { languages: buildLangAlternates(l => postPath(l, post.slug)) },
+      alternates: { languages: langAlternates },
     });
   }
 

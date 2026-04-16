@@ -49,15 +49,19 @@ export function postMetadata(
   title: string,
   description?: string,
   image?: string | null,
+  langAlternates?: Record<string, string>, // optional: pass filtered hreflang per instruction 7.3
 ): Metadata {
+  // canonical: en = /blog/slug, others = /lang/blog/slug (via postPath)
   const canonical = BASE + postPath(lang, slug);
   const ogImage = image || DEFAULT_OG_IMAGE;
+  // Use provided alternates (filtered by isReal + sitemapAt), or fall back to all langs
+  const languages = langAlternates ?? buildLangAlternates(l => postPath(l, slug));
   return {
     title,
     description,
     alternates: {
       canonical,
-      languages: buildLangAlternates(l => postPath(l, slug)),
+      languages,
     },
     openGraph: {
       title,
