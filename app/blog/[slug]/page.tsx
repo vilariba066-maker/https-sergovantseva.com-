@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: Props) {
   if (!post) return {};
   const wordCount = countWords(post.content || '');
   const meta = postMetadata('en', slug, post.seoTitle || post.title, post.seoDescription || post.excerpt || '', post.featuredImage);
-  if (wordCount < 200) meta.robots = { index: false, follow: true };
+  if (wordCount < 200 || post.noindex) meta.robots = { index: false, follow: true };
   return meta;
 }
 

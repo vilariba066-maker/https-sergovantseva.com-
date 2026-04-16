@@ -71,8 +71,8 @@ export async function generateMetadata({ params }: Props) {
     langAlternates,
   );
 
-  // noindex: fake translation OR content too short
-  if (isFakeTranslation || wordCount < 300) {
+  // noindex: fake translation OR content too short OR explicit noindex flag
+  if (isFakeTranslation || wordCount < 300 || post.noindex) {
     meta.robots = { index: false, follow: true };
   }
 

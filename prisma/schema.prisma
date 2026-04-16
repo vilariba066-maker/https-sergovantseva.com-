@@ -19,6 +19,7 @@ model Post {
   seoTitle       String?  @map("seo_title")
   seoDescription String?  @map("seo_description")
   seoKeywords    String?  @map("seo_keywords")
+  noindex        Boolean  @default(false)
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
   translations   PostTranslation[]
