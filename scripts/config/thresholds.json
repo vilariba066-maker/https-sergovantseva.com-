@@ -1,0 +1,142 @@
+{
+  "_meta": {
+    "version": "2026-04-17",
+    "description": "All thresholds consolidated; consumed by scripts/*.py. Adjust here, code reads at import.",
+    "sources": ["SEO-PEDIA-2026", "checklist.py v5.0", "Practical Checklist PDF", "AVI PDF"]
+  },
+  "article_quality": {
+    "spambrain_min": 7,
+    "reader_value_min": 7,
+    "human_likeness_min": 8,
+    "thin_content_max": 3,
+    "word_count_min_absolute": 300,
+    "word_count_min_target": 1200,
+    "word_count_longform_target": 1800,
+    "fres_target_min": 60,
+    "fres_target_max": 70,
+    "ari_target_max": 9,
+    "ari_rewrite_threshold": 11,
+    "keyword_density_max_pct": 3.0,
+    "exact_match_anchor_ratio_max": 0.60,
+    "cross_page_similarity_max": 0.85,
+    "heading_sequence_jaccard_max": 0.80,
+    "meta_desc_duplicate_pct_max": 10,
+    "paragraph_max_sentences": 3,
+    "citations_per_article_min": 5,
+    "content_refresh_months": 3,
+    "transition_density_max_per_1000": 12,
+    "ai_word_density_max_per_1000": 8,
+    "ai_phrase_density_max_per_1000": 3
+  },
+  "information_gain": {
+    "min_signals_for_pass": 2,
+    "case_study_required_for_ymyl": true,
+    "named_quotes_min": 2,
+    "specific_data_points_min": 8,
+    "proprietary_methodology_preferred": true,
+    "tables_present": "bonus"
+  },
+  "google_indexing_api": {
+    "urls_per_day_max": 200,
+    "batch_size": 50,
+    "request_delay_ms": 1500,
+    "types_allowed": ["URL_UPDATED", "URL_DELETED"]
+  },
+  "sitemap": {
+    "urls_per_day_submission_max": 5000,
+    "urls_per_file_max": 50000,
+    "file_size_mb_max": 50,
+    "priority_default": 0.8,
+    "priority_homepage": 1.0,
+    "changefreq_for_blog": "weekly",
+    "changefreq_for_static": "monthly"
+  },
+  "robots_txt": {
+    "ahrefsbot_crawl_delay": 15,
+    "semrushbot_crawl_delay": 10,
+    "default_user_agent_allow_all": true
+  },
+  "translation": {
+    "title_similarity_max_vs_original": 0.70,
+    "body_similarity_max_vs_original": 0.70,
+    "toponym_mapping_required": true,
+    "is_real_field_required": true,
+    "hreflang_only_if_real": true
+  },
+  "photo_verification_7_level": {
+    "min_size_kb": 5,
+    "max_size_mb": 10,
+    "min_width_px": 200,
+    "min_height_px": 200,
+    "aspect_ratio_min": 0.75,
+    "aspect_ratio_max": 0.80,
+    "mtcnn_min_face_size": 40,
+    "mtcnn_thresholds": [0.6, 0.7, 0.7],
+    "cosine_similarity_min": 0.55,
+    "consensus_cluster_min_photos": 3,
+    "magic_bytes": {
+      "jpeg": "FF D8 FF",
+      "png": "89 50 4E 47",
+      "webp": "RIFF....WEBP",
+      "gif": "GIF8[79]a"
+    }
+  },
+  "engagement_rate_targets_ga4": {
+    "info_blog_longform": 50,
+    "saas_b2b": 40,
+    "ecommerce": 60,
+    "health_wellness": 55,
+    "education": 50,
+    "real_estate": 50
+  },
+  "scroll_depth_targets": {
+    "landing_page": 50,
+    "info_blog_longform": 65,
+    "short_news": 75,
+    "docs_guides": 75
+  },
+  "avi_weights": {
+    "semantic_seo_content_score": 0.20,
+    "seo_over_optimization_penalty": 0.05,
+    "eeat_author_expertise": 0.15,
+    "readability_fres": 0.10,
+    "ga4_engagement_rate": 0.20,
+    "scroll_depth_75pct": 0.15,
+    "micro_conversions": 0.15,
+    "_sum": 1.00,
+    "tier_leader_min": 80,
+    "tier_sweet_spot_min": 70
+  },
+  "hallucination_rates_2026": {
+    "grok-4": 15,
+    "gpt-4.1": 17,
+    "gemini-3-pro-preview": 17,
+    "claude-opus-4.1": 17,
+    "gpt-5": 17,
+    "gpt-5.1": 20,
+    "gemini-2.5-pro": 21,
+    "claude-sonnet-4": 21,
+    "claude-3.5-sonnet": 22,
+    "gpt-5.2": 23,
+    "gpt-oss-120b": 27,
+    "grok-3": 28,
+    "gemini-2.0-flash": 30,
+    "deepseek-v3.2": 33,
+    "qwen3-235b-a22b": 52
+  },
+  "spambrain_signals_leaked": {
+    "spambrainData": "global doc/host spam probability",
+    "scamness": "phishing/scam metric",
+    "anchorMismatchDemotion": "anchor semantic mismatch demotion",
+    "BadBacklinks": "isolate toxic link fragments"
+  },
+  "self_learning_system": {
+    "l1_rag_enrich_score_min": 70,
+    "l1_rag_enrich_source_tag": "our_best_content",
+    "l1_cycles_for_maturity": 50,
+    "l2_save_best_prompt_score_min": 70,
+    "l3_dpo_pairs_target_min": 200,
+    "l3_dpo_pairs_target_max": 500,
+    "l3_gpu_vram_gb": 22
+  }
+}

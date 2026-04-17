@@ -1,0 +1,188 @@
+{
+  "_meta": {
+    "version": "2026-04-17",
+    "description": "Consolidated AI-detection blacklists from SEO-PEDIA-2026, checklist.py v5.0, Anatomy PDF, Practical PDF, AUTOPILOT guide",
+    "usage": "Used by scripts/ai_detector.py, scripts/checklist.py"
+  },
+  "tier1_ai_words": [
+    "delve", "tapestry", "landscape", "multifaceted", "pivotal", "realm",
+    "commendable", "intricate", "intricacies", "noteworthy", "meticulous",
+    "meticulously", "testament", "underpinning", "underscores", "nuanced",
+    "showcasing", "embark", "endeavor", "encompass", "spearhead", "groundbreaking"
+  ],
+  "tier2_ai_words": [
+    "furthermore", "moreover", "additionally", "crucial", "robust", "innovative",
+    "leverage", "streamline", "foster", "bolster", "garner", "vibrant", "enduring",
+    "underscore", "elevate", "align", "proactive", "seamless", "comprehensive",
+    "transformative", "unprecedented", "cutting-edge", "dynamic", "scalable",
+    "tailored", "game-changer", "revolutionize", "supercharge", "unlock", "unleash",
+    "intersection", "interplay", "arguably", "notably", "evidently"
+  ],
+  "corporate_jargon": [
+    "best-in-class solutions", "cutting-edge technology", "scalable infrastructure",
+    "drive synergies", "industry-leading", "world-class", "next-generation",
+    "state-of-the-art", "end-to-end", "unlock your full potential"
+  ],
+  "ai_phrases": [
+    "in today's digital landscape", "in the ever-evolving world",
+    "in today's fast-paced world", "in today's world", "in the realm of",
+    "in an era of", "in the age of", "in a world where", "in the dynamic world",
+    "it is worth noting", "it's important to note", "it is important to note",
+    "it should be noted", "stands as a testament", "serves as a testament",
+    "a testament to", "plays a crucial role", "plays a pivotal role",
+    "has become increasingly important", "cannot be overstated",
+    "is a game-changer", "in conclusion", "in summary", "to sum up",
+    "making it a", "making them a", "making this a",
+    "highlighting the importance", "underscoring the need", "paving the way for",
+    "when it comes to", "whether you're a seasoned", "whether you are a seasoned",
+    "industry reports", "experts agree", "studies show", "research indicates",
+    "it is widely believed", "generally speaking", "from a broader perspective",
+    "one might argue", "it can be argued", "plays a vital role",
+    "plays a significant role", "continue to captivate", "leaves a lasting impact",
+    "watershed moment", "key turning point", "deeply rooted", "profound heritage",
+    "stands as a", "best-in-class", "scalable infrastructure", "drive synergies",
+    "cutting-edge technology", "unlock your full potential", "best-in-class solutions",
+    "industry-leading", "world-class", "next-generation", "state-of-the-art",
+    "end-to-end", "making it a perfect", "making it an ideal", "making it a great",
+    "resulting in a", "resulting in higher", "resulting in improved",
+    "ensuring that", "ensuring a seamless", "contributing to"
+  ],
+  "ai_phrases_ru": [
+    "в заключение", "важно отметить", "стоит подчеркнуть",
+    "на сегодняшний день", "в современном мире", "комплексный подход",
+    "когда речь идёт о", "является одним из", "играет ключевую роль",
+    "не стоит забывать", "следует отметить", "многогранный", "всеобъемлющий",
+    "инновационный", "в эпоху", "в нашу эпоху", "стоит отметить",
+    "неотъемлемой частью", "краеугольным камнем", "стремительно развивающийся"
+  ],
+  "instant_fail_patterns": [
+    "as an ai\\b",
+    "language model",
+    "i hope this helps",
+    "i('m| am) an ai",
+    "i don'?t have personal",
+    "as of my (last |knowledge )?cut.?off",
+    "i cannot browse",
+    "i don'?t have access",
+    "based on my training data"
+  ],
+  "transition_words": [
+    "furthermore", "moreover", "additionally", "consequently", "subsequently",
+    "nevertheless", "nonetheless", "conversely", "accordingly", "henceforth",
+    "thereby", "thus", "hence", "therefore", "meanwhile", "likewise",
+    "similarly", "in addition", "as a result", "on the other hand",
+    "in contrast", "for instance", "for example", "in particular",
+    "specifically", "notably", "significantly", "importantly", "interestingly"
+  ],
+  "rhetorical_patterns": {
+    "antithesis": [
+      "it'?s not (?:just |merely |only |simply )?about .{5,60}[;,] it'?s",
+      "not only .{5,60} but also",
+      "more than (?:just |simply |merely ).{5,40}[;,\u2014] it'?s",
+      "beyond (?:just |merely )?.{5,40}[,;\u2014] .{5,40} (?:as well|too|also)",
+      "not because .{5,60}\\. but because"
+    ],
+    "tripartite_absolute": [
+      "No \\w+\\.\\s*No \\w+\\.\\s*(?:Just|Only) \\w+",
+      "\\w+\\.\\s+\\w+\\.\\s+\\w+\\."
+    ],
+    "rhetorical_staccato": [
+      "(?:The |And the |But the )?\\w+(?:\\s\\w+)?\\?\\s+[A-Z]\\w+",
+      "The result\\?\\s+\\w"
+    ],
+    "rule_of_three": [
+      "\\b\\w+(?:\\s+\\w+){0,2},\\s+\\w+(?:\\s+\\w+){0,2},\\s+and\\s+\\w+(?:\\s+\\w+){0,2}\\b"
+    ]
+  },
+  "conclusion_templates": [
+    "despite .{10,60}, .{5,30} (?:offers?|provides?|remains?|continues?)",
+    "as .{10,40} continues? to (?:evolve|grow|develop|expand)",
+    "the future of .{5,30} (?:looks?|remains?|is) (?:bright|promising|exciting)",
+    "(?:moving forward|going forward|looking ahead),? .{10,80}",
+    "at the end of the day"
+  ],
+  "vague_claims": [
+    "studies (?:show|suggest|indicate|have shown|reveal)",
+    "research (?:shows|suggests|indicates|has shown|reveals)",
+    "experts (?:agree|say|believe|recommend|suggest)",
+    "according to (?:studies|research|experts|reports|data)",
+    "it has been (?:shown|proven|demonstrated|established)",
+    "(?:many|some|most|numerous|several) (?:experts|studies|researchers|reports)",
+    "statistics show",
+    "data suggests"
+  ],
+  "ing_fillers": [
+    ",\\s+(?:making|ensuring|resulting|contributing|highlighting|demonstrating|emphasizing|facilitating|enabling|providing|offering|allowing|helping|creating|fostering|paving|representing)\\s+"
+  ],
+  "spammy_tlds": [
+    ".xyz", ".top", ".buzz", ".click", ".loan", ".work", ".gq", ".cf", ".tk",
+    ".ml", ".ga", ".biz", ".info", ".pw", ".rest", ".bid", ".review"
+  ],
+  "hidden_text_css": [
+    "display\\s*:\\s*none",
+    "visibility\\s*:\\s*hidden",
+    "font-size\\s*:\\s*0",
+    "position\\s*:\\s*absolute\\s*;\\s*left\\s*:\\s*-\\d{4}",
+    "text-indent\\s*:\\s*-\\d{4}",
+    "overflow\\s*:\\s*hidden\\s*;\\s*height\\s*:\\s*0",
+    "color\\s*:\\s*(?:white|#fff|#ffffff)\\s*;\\s*background(?:-color)?\\s*:\\s*(?:white|#fff|#ffffff)"
+  ],
+  "invisible_chars": "[\\u200b\\u200c\\u200d\\u2060\\ufeff\\u00ad]",
+  "scraped_markers": [
+    "copyright", "all rights reserved", "reprinted with permission",
+    "originally published", "source:"
+  ],
+  "site_reputation_abuse_promo": [
+    "\\b(?:buy now|order now|shop now|get yours|limited offer|exclusive deal|act now|hurry)\\b",
+    "\\b(?:best price guaranteed|lowest price|unbeatable|rock-bottom)\\b",
+    "\\b(?:click here to|sign up now|register today|subscribe now)\\b",
+    "(?:ref=|affiliate|partner_id|tracking_id|aff_id)"
+  ],
+  "doorway_location_permutation": [
+    "(?:car rental|rent a car|hire a car|arenda avto|prokat avto|car hire) (?:in|v|w) (\\w+)",
+    "(?:hotel|отел|гостиниц[аы]) (?:in|в) (\\w+)",
+    "(?:seo|digital marketing|web design) (?:services? )?(?:in|in the) (\\w+)"
+  ],
+  "human_signals_first_person_en": [
+    "\\b(?:i |i'm |i've |i'd |my |me |myself )\\b",
+    "(?:last (?:summer|year|time|month|week)|when i was|in my experience)"
+  ],
+  "human_signals_first_person_ru": [
+    "\\b(?:я |мне |мой |моя |моё |меня |мной |по-моему)\\b",
+    "(?:прошлым летом|в прошлом году|когда я был|по моему опыту)"
+  ],
+  "eeat_experience_en": [
+    "\\b(?:i tested|i tried|i used|i found|in my experience|from my experience)\\b",
+    "\\b(?:i measured|i timed|i compared|i inspected|i documented|i verified)\\b"
+  ],
+  "eeat_experience_ru": [
+    "\\b(?:когда я|я попробовал|я использовал|я арендовал|по моему опыту|я тестировал|я проверял)\\b"
+  ],
+  "eeat_trust_markers": [
+    "\\b(?:disclaimer|limitation|caveat|downside|drawback|honestly|full disclosure|to be fair)\\b",
+    "\\b(?:отказ от ответственности|ограничение|оговорка|минус|недостаток|честно говоря)\\b"
+  ],
+  "eeat_authority_titles": [
+    "CEO", "founder", "co-founder", "president", "professor", "doctor", "dr\\.",
+    "PhD", "MD", "Esq\\.", "director", "head of"
+  ],
+  "reference_junk_patterns": [
+    "(?:click here|buy now|subscribe|sign up|download free).{0,30}(?:click here|buy now|subscribe|sign up|download free)",
+    "(?:lorem ipsum|dolor sit amet)",
+    "(?:xxx|porn|casino|viagra|cialis)",
+    "(?:\\{\\{|\\}\\}|\\$\\{|\\[%)",
+    "(?:undefined|null|NaN|Object object)"
+  ],
+  "noise_html_tags": [
+    "script", "style", "nav", "footer", "header", "aside", "noscript",
+    "iframe", "form", "button", "input", "select"
+  ],
+  "do_not_translate": [
+    "GetTransfer", "GetRentACar", "GetRentaCar", "GetModel", "GetCelebrity",
+    "SoulMatcher", "GetExperience", "CommunityNet", "CNET", "Key Group",
+    "Claude Code", "Anthropic", "Google", "GitHub", "OpenAI", "DigitalOcean",
+    "DeepL", "Ahrefs", "SEMrush", "Yoast", "Surfer", "MarketMuse", "InLinks",
+    "Niara", "Rankability", "Humalingo", "Originality.AI", "Pangram",
+    "Winston AI", "GPTZero", "YouScan AI", "Turnitin", "Copyleaks"
+  ]
+}
