@@ -34,7 +34,7 @@ const CONFIG = {
     // Only the 10 languages the site serves (see lib/i18n.ts)
     'ru': 'RU', 'de': 'DE', 'fr': 'FR', 'es': 'ES',
     'it': 'IT', 'pl': 'PL', 'pt': 'PT', 'tr': 'TR',
-    'uk': 'UK', 'el': 'EL',
+    'uk': 'UA', 'el': 'EL',
   },
 
   BATCH_SIZE: 50,
