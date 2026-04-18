@@ -5,7 +5,7 @@
  *
  * Использование:
  *   node scripts/translate-remaining.js                         # обычный запуск
- *   node scripts/translate-remaining.js --batch=50             # размер батча
+ *   node scripts/translate-remaining.js --batch=300            # размер батча
  *   node scripts/translate-remaining.js --lang=ru              # только один язык
  *   node scripts/translate-remaining.js --dry-run              # без реальных запросов
  *   node scripts/translate-remaining.js --stats                # только статистика
@@ -37,8 +37,8 @@ const CONFIG = {
     'uk': 'UA', 'el': 'EL',
   },
 
-  BATCH_SIZE: 50,
-  DELAY_MS: 300,
+  BATCH_SIZE: 300,
+  DELAY_MS: 150,
   MAX_RETRIES: 3,
   RETRY_DELAY_MS: 5000,
 };
