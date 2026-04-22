@@ -6,6 +6,173 @@
 
 
 
+@import "tailwindcss";
+/* ── Self-hosted fonts (Google Fonts blocked in RU) ── */
+
+
+
+
+
+
+
+:root {
+  --green: #000;
+  --green-hover: rgba(0,0,0,0.7);
+  --border: #DCDDE1;
+  --border2: #E6E7E8;
+  --meta: rgba(47,43,67,0.5);
+  --bg-tag: #F7F7F7;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  line-height: 1.2;
+  color: #000;
+  background: #fff;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: Georgia, 'Times New Roman', serif !important;
+}
+
+img { max-width: 100%; display: block; }
+a { text-decoration: none; }
+ul { list-style: none; padding: 0; margin: 0; }
+
+.container {
+  width: 100%;
+  max-width: 1210px;
+  padding: 0 15px;
+  margin: 0 auto;
+}
+
+.btn-green {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #000;
+  color: #fff !important;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  border-radius: 57px;
+  padding: 0 24px;
+  height: 42px;
+  white-space: nowrap;
+  text-decoration: none !important;
+  transition: background-color 0.2s, transform 0.2s;
+  cursor: pointer;
+  border: none;
+}
+.btn-green:hover { background-color: #333 !important; transform: translateY(-2px); }
+
+/* Post content typography */
+.post-content { font-size: 15px; line-height: 1.5; }
+.post-content p { line-height: 1.5; margin-bottom: 20px; }
+.post-content h1, .post-content h2, .post-content h3,
+.post-content h4, .post-content h5, .post-content h6 {
+  font-family: Georgia, 'Times New Roman', serif !important;
+  font-weight: 700; line-height: 1.2; margin-bottom: 8px;
+  margin-top: 30px; font-size: 20px; display: block;
+}
+.post-content a { color: #000; text-decoration: underline; }
+.post-content a:hover { color: rgba(0,0,0,0.6); }
+.post-content ul { margin-bottom: 20px; padding-left: 0; list-style: none; }
+.post-content ul li { padding-left: 24px; margin-bottom: 10px; position: relative; font-size: 15px; line-height: 1.5; }
+.post-content ul li::before { content: ''; position: absolute; left: 7px; top: 9px; width: 5px; height: 5px; border-radius: 50%; background: #000; }
+.post-content ol { counter-reset: item; list-style: none; padding: 0; margin-bottom: 20px; }
+.post-content ol li { padding-left: 34px; margin-bottom: 10px; position: relative; line-height: 1.5; counter-increment: item; }
+.post-content ol li::before { content: counter(item); position: absolute; left: 0; top: 2px; width: 24px; height: 24px; background: #000; border-radius: 50%; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.post-content blockquote { padding: 30px 30px 30px 50px; margin-bottom: 40px; border-radius: 16px; border: 1px solid #E5E7EB; }
+.post-content strong { font-weight: 600; }
+.post-content img { border-radius: 12px; max-width: 100%; height: auto; margin-bottom: 20px; }
+.post-content table { width: 100%; border-collapse: collapse; margin-bottom: 40px; }
+.post-content table th, .post-content table td { padding: 12px; border: 1px solid #E6E7E8; text-align: left; }
+
+/* Blog card grid responsive */
+.blog-grid { display: flex; flex-wrap: wrap; margin: 0 -16px; }
+.blog-card { width: calc(33.33% - 32px); margin: 0 16px 32px; text-decoration: none; color: inherit; display: block; transition: transform 0.25s ease, box-shadow 0.25s ease; }
+.blog-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+
+@media (max-width: 900px) {
+  .blog-card { width: calc(50% - 32px); }
+}
+@media (max-width: 600px) {
+  .blog-card { width: calc(100% - 32px); }
+  .featured-post { flex-direction: column !important; }
+  .featured-post-img { max-width: 100% !important; width: 100% !important; }
+  .featured-post-text { width: 100% !important; padding-top: 0 !important; }
+  .header-desktop { display: none !important; }
+  .header-mobile { display: block !important; }
+}
+@media (min-width: 601px) {
+  .header-mobile { display: none !important; }
+}
+
+/* Scroll animations */
+.animate-hidden {
+  opacity: 0;
+  transform: translateY(20px);
+}
+.animate-visible {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+/* Nav link size override + hover underline */
+.nav-item { font-size: 16px !important; position: relative; }
+.nav-item::after { content: ''; position: absolute; left: 20px; right: 20px; bottom: 12px; height: 1.5px; background: #000; transform: scaleX(0); transform-origin: left; transition: transform 0.2s ease; }
+.nav-item:hover::after { transform: scaleX(1); }
+
+/* View all arrow */
+.view-all-arrow { display: inline-block; transition: transform 0.2s ease; }
+.view-all-link:hover .view-all-arrow { transform: translateX(4px); }
+
+/* Splash screen */
+@keyframes splashFadeOut {
+  0%, 83% { opacity: 1; }
+  100%     { opacity: 0; }
+}
+
+/* Hover utilities */
+.hover-green:hover { color: #000 !important; }
+.hover-bg:hover { background-color: #F7F7F7 !important; }
+.social-icon { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; transition: background 0.2s; }
+.social-icon:hover { background: #F7F7F7; }
+.nav-link { display: flex; align-items: center; padding: 0 12px; height: 42px; color: #000; font-size: 15px; transition: background 0.2s; border-radius: 57px; }
+.nav-link:hover { background: #F7F7F7; }
+.back-link { display: inline-flex; align-items: center; color: #000; transition: color 0.2s; }
+.back-link:hover { color: rgba(0,0,0,0.6); }
+.outline-btn { display: inline-flex; align-items: center; justify-content: center; padding: 0 32px; height: 52px; border-radius: 57px; border: 1px solid #000; font-size: 16px; font-weight: 500; color: #000; transition: background 0.2s, color 0.2s; }
+.outline-btn:hover { background: #000; color: #fff !important; }
+
+/* Hero layout */
+.hero-container {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+/* Hero mobile fix */
+@media (max-width: 768px) {
+  .hero-container {
+    flex-direction: column !important;
+    gap: 24px !important;
+  }
+  .hero-image {
+    max-width: 100% !important;
+    width: 100% !important;
+    flex: none !important;
+  }
+  .hero-text {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+}
 
 :root {
   --green: #000;
